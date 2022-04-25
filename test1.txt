@@ -1,0 +1,12 @@
+/* This is a program without syntax errors 
+but with lexical errors */
+int program (int u, int v){
+    float z;
+    {
+        /* With a comment inside */
+        if ( test != 2) test = test + 2 * 4
+        else while (z != 7) z = z - 1 #
+    }
+}
+/*
+

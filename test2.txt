@@ -1,0 +1,10 @@
+/* A program with a missing '{' */
+
+void main(void)
+{
+    int x;
+    int y;
+    /* there is a missing { */
+    x = 2}
+}
+
