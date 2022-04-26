@@ -1,10 +1,8 @@
 /* This is a program without syntax errors 
 but with lexical errors */
-int program (int u, int v){
-    int z;
+int program (void){
+    int l;
     {
-        z = 4
-        z = z + 2
+        if(2 == 2) l = 1
     }
 }
-

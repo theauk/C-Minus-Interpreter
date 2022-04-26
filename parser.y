@@ -1,18 +1,11 @@
-%union {
-    int number;
-    float floating;
-    char *str;
-    char *operator;
-    char *IO;
-    char *varType;
-    char *statement;
-};
-
 %{
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
+    #include <stdbool.h>                /* Allows bool type usage */
     #include "symbolTable.h"
+    #include "queue.h"
+
     int yylex();                    // Built-in function that recognizes input stream tokens and returns them to the parser
     void yyerror(char const *s);    // Function used for error messages
     void readInput(char id[]);
@@ -22,8 +15,27 @@
     void printSymbolTable();
     char * getExpType(float exp);
     float calculate(char op[], float num1, float num2);
+    void printArray(char key[], struct Entry e);
+    void printNonArray(char key[], struct Entry e);
+    bool getBoolExp(char op[], float num1, float num2);
+    void assignmentSimple(char key[], float val);
+    void assignmentArray(char key[], float index, float val);
+    float getVar(char var[]);
+    
     struct SymbolTable s;
+    struct Queue q;
 %}
+
+%union {
+    int number;
+    float floating;
+    char *str;
+    char *operator;
+    char *IO;
+    char *varType;
+    char *statement;
+    bool boolExp;
+};
 
 // Definitions of tokens
 %token <IO> READ
@@ -58,7 +70,9 @@
 
 %type <varType> typeSpecifier
 %type <floating> factor additiveExpression term
-%type <str> var addop mulop
+%type <str> var addop mulop statement
+%type <boolExp> boolExpression
+%type <operator> relop
 
 // Gives ELSE precedence over just IF (precedences goes in increasing order). To avoid dangling else. 
 %nonassoc IF_LOWER
@@ -78,21 +92,18 @@ declarationListTail: varDeclaration declarationListTail | /* epsilon */;
 varDeclaration: 
       typeSpecifier ID SEMICOLON
       { 
-        insertOrUpdateEntry($1, $2, 0.0, false, 0);
+        insertOrUpdateEntry($1, $2, 0.0, false, 0); /* Insert value into symbol table */
       }
       | typeSpecifier ID LSQUARE NUM RSQUARE SEMICOLON
       {  
-        insertOrUpdateEntry($1, $2, 0.0, true, $4);
+        insertOrUpdateEntry($1, $2, 0.0, true, $4); /* Insert array into symbol table */
       }
       ;
 
 typeSpecifier: 
-      INT 
-      {$$ = $1;}
-      | FLOAT 
-      {$$ = $1;}
-      | VOID
-      {$$ = $1;}
+      INT {$$ = $1;}
+      | FLOAT {$$ = $1;}
+      | VOID {$$ = $1;}
       ;
 
 params: paramList | VOID; 
@@ -120,76 +131,53 @@ statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStm
 
 selectionStmt: IF LPAREN boolExpression RPAREN statement %prec IF_LOWER | IF LPAREN boolExpression RPAREN statement ELSE statement;
 
-iterationStmt: WHILE LPAREN boolExpression RPAREN statement;
-
-assignmentStmt: 
-      var ASSIGNMENT additiveExpression
+iterationStmt: 
+      WHILE LPAREN boolExpression RPAREN statement
       {
-        printf("assignmentStmt %s\n", $1);
-        printf("assignmentStmt %f\n", $3);
-        int containsIndex = symbolTableContains(s, $1);
-        if (containsIndex == -1)
+        printf("%s\n", $5);
+        if ($3 == 0)
         {
-          interpreterError("variable not declared", $1);
-        } 
-        else
-        {
-          struct Entry match = symbolTableGet(s, containsIndex);
-          printf("TYPE: %s\n", getExpType($3));
-
-          if ((strcmp(getExpType($3), "float") == 0) && (strcmp(match.type, "int") == 0))
-          {
-            interpreterError("type mismatch", $1);
-          }
-          else 
-          {
-          printf("ASSIGNMENT GET BEFORE update: %s, %s, isA %d, %f, %d\n", s.keys[containsIndex], s.values[containsIndex].type, s.values[containsIndex].isArray, s.values[containsIndex].value, s.values[containsIndex].line);
-          s = symbolTableUpdate(s, containsIndex, match.type, match.isArray, $3, match.line, match.arraySize);
-          printf("ASSIGNMENT AFTER update: %s, %s, isA %d, %f, %d\n", s.keys[containsIndex], s.values[containsIndex].type, s.values[containsIndex].isArray, s.values[containsIndex].value, s.values[containsIndex].line);
-          } 
+          printf("TRUE\n");
         }
       }
       ;
 
-ioStmt: 
-      READ ID ioReadTail { readInput($2); }
-      | WRITE ID ioWriteTail { writeInput($2); } 
-      ;
-
-ioReadTail: 
-      COMMA ID ioReadTail { readInput($2); }
-      | SEMICOLON 
-      ;
-
-ioWriteTail: 
-      COMMA ID ioWriteTail { writeInput($2); }
-      | SEMICOLON 
+assignmentStmt: 
+      ID ASSIGNMENT additiveExpression
+      {
+        assignmentSimple($1, $3);
+      }
+      | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
+      {
+        assignmentArray($1, $3, $6);
+      }
       ;
 
 var: 
       ID
       { 
-        printf("var ID %s\n", $1);
+        printf("var ID %s\n", $1); /* NOTE DELETE */
         
       }
       | ID LSQUARE additiveExpression RSQUARE
-      { printf("var ID [] %f\n", $3); }
+      { printf("var ID [] %f\n", $3); } /* NOTE DELETE */
       ;
 
-boolExpression: additiveExpression relop additiveExpression;
-
-//expressionTail: relop additiveExpression expressionTail | /* epsilon */;
+boolExpression: 
+      additiveExpression relop additiveExpression
+      {
+        printf("BOOLEXP %f, %s, %f\n", $1, $2, $3);
+        printf("BOOL RES %d\n", getBoolExp($2, $1, $3));
+        $$ = getBoolExp($2, $1, $3);
+      }
+      ;
 
 relop: LESS_OR_EQUAL | LESS_THAN | GREATER_THAN | GREATER_OR_EQUAL | EQUALS | NOT_EQUALS;
-
-//additiveExpression: term | additiveExpressionTail ;
 
 additiveExpression: 
       term { $$ = $1; }
       | term addop additiveExpression { printf("calc %f\n", calculate($2, $1, $3)); $$ = calculate($2, $1, $3); }
       ;
-
-//additiveExpressionTail: addop term additiveExpressionTail | /* epsilon */;
 
 term: 
       factor { $$ = $1; }
@@ -210,20 +198,25 @@ factor:
   LPAREN additiveExpression RPAREN { $$ = $2; printf("factor add %f\n", $2);}
   | var 
   { 
-    printf("factor var %s\n", $1);
-    int containsIndex = symbolTableContains(s, $1);
-    if (containsIndex == -1)
-    {
-      interpreterError("variable not declared", $1);
-    }
-    else
-    {
-      printf("var VALUE %f\n", symbolTableGet(s, containsIndex).value);
-      $$ = symbolTableGet(s, containsIndex).value;
-    }
+    $$ = getVar($1);
   }
   | NUM { printf("factor NUM %f\n", yylval.floating); $$ = yylval.floating; }
   ;
+
+ioStmt: 
+      READ ID ioReadTail { readInput($2); }
+      | WRITE ID ioWriteTail { writeInput($2); } 
+      ;
+
+ioReadTail: 
+      COMMA ID ioReadTail { readInput($2); }
+      | SEMICOLON 
+      ;
+
+ioWriteTail: 
+      COMMA ID ioWriteTail { writeInput($2); }
+      | SEMICOLON 
+      ;
 
 %%
 #include "lex.yy.c" // Using Lex and yacc together
@@ -306,26 +299,150 @@ float calculate(char op[], float num1, float num2)
   }
 }
 
+bool getBoolExp(char op[], float num1, float num2) 
+{
+  if (strcmp("==", op) == 0) return num1 == num2;
+  else if (strcmp("!=", op) == 0) return num1 != num2;
+  else if (strcmp("<", op) == 0) return num1 < num2;
+  else if (strcmp("<=", op) == 0) return num1 <= num2;
+  else if (strcmp(">", op) == 0) return num1 > num2;
+  else if (strcmp(">=", op) == 0) return num1 >= num2;
+  else 
+  {
+    interpreterError("operator is not correct", "");
+    return false;
+  }
+}
+
 void interpreterError(char error[], char val[])
 {
-  printf("Ln %d, Col %d: %s %s", line - 1, pos, val, error);
+  printf("Ln %d: %s %s", line - 1, val, error);
   exit(1); /* Terminates when encountering a semantic error */
 }
+
+float getVar(char var[]) 
+{
+    printf("factor var %s\n", var);
+    int containsIndex = symbolTableContains(s, var);
+    if (containsIndex == -1)
+    {
+      interpreterError("variable not declared", var);
+    }
+    printf("var VALUE %f\n", symbolTableGet(s, containsIndex).value);
+    return symbolTableGet(s, containsIndex).value;
+}
+
+
+void assignmentSimple(char key[], float val)
+{
+  int containsIndex = symbolTableContains(s, key);
+  if (containsIndex == -1)
+  {
+    interpreterError("variable not declared", key);
+  } 
+  else
+  {
+    struct Entry match = symbolTableGet(s, containsIndex);
+    printf("TYPE: %s\n", getExpType(val));
+
+    if (match.isArray)
+    {
+      interpreterError("assignment to expression with array type", "");
+    }
+    else if ((strcmp(getExpType(val), "float") == 0) && (strcmp(match.type, "int") == 0))
+    {
+      interpreterError("type mismatch", "float and int");
+    }
+    else 
+    {
+      printf("ASSIGNMENT GET BEFORE update: %s, %s, isA %d, %f, %d\n", s.keys[containsIndex], s.values[containsIndex].type, s.values[containsIndex].isArray, s.values[containsIndex].value, s.values[containsIndex].line);
+      s = symbolTableUpdate(s, containsIndex, match.type, match.isArray, val, match.line, match.arraySize);
+      printf("ASSIGNMENT AFTER update: %s, %s, isA %d, %f, %d\n", s.keys[containsIndex], s.values[containsIndex].type, s.values[containsIndex].isArray, s.values[containsIndex].value, s.values[containsIndex].line);
+    } 
+  }
+}
+
+void assignmentArray(char key[], float index, float val)
+{
+  int containsIndex = symbolTableContains(s, key);
+  if (containsIndex == -1)
+  {
+    interpreterError("variable not declared", key);
+  } 
+  else
+  {
+    struct Entry match = symbolTableGet(s, containsIndex);
+
+    if (!match.isArray)
+    {
+      interpreterError("is not an array so cannnot assign value", key);
+    }
+    else if ((strcmp(getExpType(index), "float") == 0))
+    {
+      interpreterError("array subscript is not an integer", "");
+    }
+    else if ((strcmp(getExpType(val), "float") == 0) && (strcmp(match.type, "int") == 0))
+    {
+      interpreterError("type mismatch", "float and int");
+    }
+    else 
+    {
+      s = symbolTableUpdateArray(s, containsIndex, index, val);
+    } 
+  }
+}
+
+
+
 
 void printSymbolTable() 
 {
   printf("\n--- SYMBOL TABLE ---\n");
   for(int i = 0; i < s.nextEntryIndex; i++) 
   {
-    if (strcmp(s.values[i].type, "int") == 0)
+    if (s.values[i].isArray)
     {
-        int val = s.values[i].value;
-        printf("var: %s; type: %s; value: %d; isArray: %d; dec line: %d \n", s.keys[i], s.values[i].type, val, s.values[i].isArray, s.values[i].line);
+      printArray(s.keys[i], s.values[i]);
     }
     else 
     {
-      printf("var: %s; type: %s; value: %f; isArray: %d; dec line: %d \n", s.keys[i], s.values[i].type, s.values[i].value, s.values[i].isArray, s.values[i].line);
+      printNonArray(s.keys[i], s.values[i]);
     }
+  }
+}
+
+void printNonArray(char key[], struct Entry e)
+{
+  printf("var: %s; type: %s; declaration line: %d; value: ", key, e.type, e.line);
+  if (strcmp(e.type, "int") == 0)
+  {
+    int val = e.value;
+    printf("%d; \n", val);
+  }
+  else 
+  {
+    printf("%f; \n", e.value);
+  }
+}
+
+void printArray(char key[], struct Entry e)
+{
+  printf("var: %s; type: %s[%d]; declaration line: %d; values: ", key, e.type, e.arraySize, e.line);
+  if (strcmp(e.type, "int") == 0)
+  {
+    printf("[ ");
+    for (int i = 0; i < e.arraySize; i++) 
+    {
+      int val = e.array[i];
+      printf("%d ", val);
+    }
+    printf("]\n");
+  }
+  else 
+  {
+    printf("[ ");
+    for (int i = 0; i < e.arraySize; i++) printf("%f ", e.array[i]);
+    printf("]\n");
   }
 }
                                                                               

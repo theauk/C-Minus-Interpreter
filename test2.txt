@@ -14,9 +14,11 @@ int program (int u, int v){
     float z;
     int z;
     float v[4];
-    int y;
+    int test;
+    int l;
     {
-        y = 2
+        l = 2
+        v[l] = 9
         /* With a comment inside */
         if ( test != 2) test = test + 2 * 4
         else while (z != 7) v[1] = 1

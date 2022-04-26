@@ -108,7 +108,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 1 "parser.y"
+#line 25 "parser.y"
 {
     int number;
     float floating;
@@ -117,9 +117,10 @@ typedef union YYSTYPE
     char *IO;
     char *varType;
     char *statement;
+    bool boolExp;
 }
 /* Line 1529 of yacc.c.  */
-#line 123 "y.tab.h"
+#line 124 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

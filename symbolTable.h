@@ -6,9 +6,9 @@ struct Entry {
     char type[50];
     bool isArray;
     int arraySize;
-    float array[100];
     float value;
     int line;
+    float array[100]; /* NOTE fix */
 };
 
 struct SymbolTable {
@@ -55,6 +55,12 @@ struct SymbolTable symbolTableUpdate(struct SymbolTable s, int index, char t[], 
     }
 
     printf("AFTER update: %s, %s, isA %d, %f, %d\n", s.keys[index], s.values[index].type, s.values[index].isArray, s.values[index].value, s.values[index].line);
+    return s;
+}
+
+struct SymbolTable symbolTableUpdateArray(struct SymbolTable s, int index, int updateIndex, float newValue)
+{
+    s.values[index].array[updateIndex] = newValue;
     return s;
 }
 
