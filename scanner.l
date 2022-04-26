@@ -75,7 +75,7 @@ not_number ({digit}+|{digit}+"."{digit}*)("E"|"e")("+"|"-")[^0-9\n \t][^\n \t]*
 "}" {pos = epos; epos += 1; yylval.str = "}"; return RCURLY;}
 
 {identifier} {pos = epos; epos += yyleng; yylval.str = strdup(yytext); return ID;} /* ID, NUM, and the specific cases that violates ID and NUM */
-{number} {pos = epos; epos += yyleng; yylval.number = atoi(yytext) ; return NUM;}
+{number} {pos = epos; epos += yyleng; yylval.floating = strtod(yytext, NULL) ; return NUM;}
 {not_identifier} {pos = epos; epos += yyleng; get_err_pos(yytext, ID_ERR);}
 {not_number} {pos = epos; epos += yyleng; get_err_pos(yytext, NUM_ERR);}
 

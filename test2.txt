@@ -8,3 +8,19 @@ void main(void)
     x = 2}
 }
 
+/* This is a program without syntax errors 
+but with lexical errors */
+int program (int u, int v){
+    float z;
+    int z;
+    float v[4];
+    int y;
+    {
+        y = 2
+        /* With a comment inside */
+        if ( test != 2) test = test + 2 * 4
+        else while (z != 7) v[1] = 1
+        write a,b;
+    }
+}
+

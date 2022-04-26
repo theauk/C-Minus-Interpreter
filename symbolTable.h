@@ -33,7 +33,7 @@ struct SymbolTable symbolTableInsert(struct SymbolTable s, char k[], char t[], b
     }
 
     s.values[s.nextEntryIndex] = newEntry;
-    printf("AFTER insert: %s, %s, %d, %f, %d\n", s.keys[s.nextEntryIndex], s.values[s.nextEntryIndex].type, s.values[s.nextEntryIndex].isArray, s.values[s.nextEntryIndex].value, s.values[s.nextEntryIndex].line);
+    printf("AFTER insert: %s, %s, isA %d, %f, %d\n", s.keys[s.nextEntryIndex], s.values[s.nextEntryIndex].type, s.values[s.nextEntryIndex].isArray, s.values[s.nextEntryIndex].value, s.values[s.nextEntryIndex].line);
     return s;
 }
 
@@ -54,15 +54,15 @@ struct SymbolTable symbolTableUpdate(struct SymbolTable s, int index, char t[], 
         s.values[index].arraySize = arrSize;
     }
 
-    printf("AFTER update: %s, %s, %d, %f, %d\n", s.keys[index], s.values[index].type, s.values[index].isArray, s.values[index].value, s.values[index].line);
+    printf("AFTER update: %s, %s, isA %d, %f, %d\n", s.keys[index], s.values[index].type, s.values[index].isArray, s.values[index].value, s.values[index].line);
     return s;
 }
 
 int symbolTableContains(struct SymbolTable s, char k[] ) 
 {
-    printf("FOR k: %s\n", k);
+    //printf("FOR k: %s\n", k);
     for(int i = 0; i < s.nextEntryIndex; i++) {
-        printf("FOR contains: %i, %s\n", i, s.keys[i]);
+        //printf("FOR contains: %i, %s\n", i, s.keys[i]);
         if (strcmp(s.keys[i], k) == 0) {
             return i;
         }

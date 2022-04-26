@@ -996,7 +996,7 @@ YY_RULE_SETUP
 case 35:
 YY_RULE_SETUP
 #line 78 "scanner.l"
-{pos = epos; epos += yyleng; yylval.number = atoi(yytext) ; return NUM;}
+{pos = epos; epos += yyleng; yylval.floating = strtod(yytext, NULL) ; return NUM;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP

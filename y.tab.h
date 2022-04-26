@@ -111,6 +111,7 @@ typedef union YYSTYPE
 #line 1 "parser.y"
 {
     int number;
+    float floating;
     char *str;
     char *operator;
     char *IO;
@@ -118,7 +119,7 @@ typedef union YYSTYPE
     char *statement;
 }
 /* Line 1529 of yacc.c.  */
-#line 122 "y.tab.h"
+#line 123 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
