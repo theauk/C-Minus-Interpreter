@@ -2,6 +2,7 @@
     int number;
     char *str;
     char *operator;
+    char *IO;
 };
 
 %{
@@ -13,6 +14,8 @@
 %}
 
 // Definitions of tokens
+%token <IO> READ
+%token <IO> WRITE
 %token <operator> ELSE
 %token <operator> IF
 %token <operator> INT
@@ -51,10 +54,7 @@
 // Grammar Rules
 %%
 program: typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY
-  {
-    printf("66 %s\n", $2);
-  };
-declarationList: varDeclaration declarationListTail;
+declarationList: varDeclaration declarationListTail | ioStmt;
 declarationListTail: varDeclaration declarationListTail | /* epsilon */;
 varDeclaration: typeSpecifier ID varDeclarationTail;
 varDeclarationTail: SEMICOLON | LSQUARE NUM RSQUARE SEMICOLON;
@@ -65,14 +65,20 @@ paramListTail: COMMA param paramListTail | /* epsilon */;
 param: typeSpecifier ID paramTail;
 paramTail: LSQUARE RSQUARE | /* epsilon */;
 compoundStmt: LCURLY statementList RCURLY
-  {
-    printf("66 %s\n", $1);
-  };
 statementList: statement statementList | /* epsilon */;
-statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt;
+statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStmt ;
 selectionStmt: IF LPAREN expression RPAREN statement %prec IF_LOWER | IF LPAREN expression RPAREN statement ELSE statement;
 iterationStmt: WHILE LPAREN expression RPAREN statement;
 assignmentStmt: var ASSIGNMENT expression;
+
+ioStmt: 
+      READ ID ioTail 
+      | WRITE ID ioTail ;
+
+ioTail: 
+      COMMA ID ioTail 
+      | SEMICOLON ;
+
 var: ID varTail;
 varTail: LSQUARE expression RSQUARE | /* epsilon */;
 expression: additiveExpression expressionTail;
@@ -103,12 +109,19 @@ int main(void)
 }
 
 // Plan:
-// make report table
 // figure out $$
 // handle read (add to lex + add function that stores in yacc)
 // handle write (similar)
+// check symbol table import works
 // print whole table at the end
 // make insert function (remember contains + increment)
 // 1. for newly insert 2. for update
 // handle operators (+, -, etc.) – remember to check for types
 // handle re-assignment errors 
+
+// Report
+// finish table
+
+// Note
+// added IO statement rules + to the statement -> ioStatement too
+// read and write is a statement too so should be inside the main { }

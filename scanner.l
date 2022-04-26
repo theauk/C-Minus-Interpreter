@@ -45,7 +45,9 @@ not_number ({digit}+|{digit}+"."{digit}*)("E"|"e")("+"|"-")[^0-9\n \t][^\n \t]*
     . {}
 }
 
-"else" {pos = epos; epos += 4; yylval.str = "else"; return ELSE;} /* Reserved keywords */
+"read" {pos = epos; epos += 4; yylval.str = "read"; return READ;} /* Reserved keywords */
+"write" {pos = epos; epos += 5; yylval.str = "write"; return WRITE;} 
+"else" {pos = epos; epos += 4; yylval.str = "else"; return ELSE;}
 "if" {pos = epos; epos += 2; yylval.str = "if"; return IF;}
 "int" {pos = epos; epos += 3; yylval.str = "int"; return INT;}
 "float" {pos = epos; epos += 5; yylval.str = "float"; return FLOAT;}
