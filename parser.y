@@ -16,7 +16,6 @@
     void assignmentSimple(char key[], float val);
     void assignmentArray(char key[], float index, float val);
     float getVar(char var[]);
-    void readInput(char id[]);
     void writeInput(char id[]);
 
     struct SymbolTable s; // Symbol table structure from symbolTable.h
@@ -62,7 +61,6 @@
 %token <operator> RCURLY
 %token <str> ID
 %token <floating> NUM
-%token <IO> READ
 %token <IO> WRITE
 
 // Additional type definitions
@@ -81,7 +79,12 @@
 
 // Grammar Rules
 %%
-program: typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY;
+program: 
+      typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY
+      {
+        insertOrUpdateEntry("program", $2, 0.0, false, 0); /* Insert value into symbol table */
+      }
+      ;
 
 declarationList: varDeclaration declarationListTail | ioStmt;
 
@@ -183,18 +186,12 @@ factor:
   ;
 
 ioStmt: 
-      READ ID ioReadTail { readInput($2); }
-      | WRITE ID ioWriteTail { writeInput($2); } 
-      ;
-
-ioReadTail: 
-      COMMA ID ioReadTail { readInput($2); }
-      | SEMICOLON 
+      WRITE ID ioWriteTail { writeInput($2); } 
       ;
 
 ioWriteTail: 
       COMMA ID ioWriteTail { writeInput($2); }
-      | SEMICOLON 
+      | /* epsilon */ 
       ;
 
 %%
@@ -357,35 +354,31 @@ void interpreterError(char error[], char val[])
   exit(1); /* Terminates when encountering a semantic error */
 }
 
-void readInput(char id[])
-{
-  /*char input[40];
-  scanf(" %[^\n]s", input);
-  printf("input: %s", input);*/
-    
-  /*printf("input value for %s\n", id);
-  scanf("%s", &input);
-  printf("INPUT %s", input);
-  int containsIndex = symbolTableContains(s, id);
-
-  if (containsIndex == -1) {
-    printf("Variable %s not declared\n", id);
-  } else {
-    struct Entry updateEntry = symbolTableGet(s, containsIndex);
-    updateEntry.value = input;
-    symbolTableUpdate(s, containsIndex, updateEntry);
-  }*/
-  
-}
-
 void writeInput(char id[])
 {
-
+  int containsIndex = symbolTableContains(s, id);
+  if (containsIndex == -1) // Check if variable is in symbol table
+  {
+    interpreterError("variable not declared", id);
+  } 
+  else 
+  {
+    struct Entry e = symbolTableGet(s, containsIndex);
+    printf("\nWrite for %s\n", id);
+    if (e.isArray)
+    {
+      printArray(id, e);
+    }
+    else
+    {
+      printNonArray(id, e);
+    }
+  }
 }
                                                                               
 int main(void) 
 {     
   yyparse();
-  printf("no syntax errors found while parsing\n");
+  printf("\nno syntax errors found while parsing\n");
   printSymbolTable(s);
 }

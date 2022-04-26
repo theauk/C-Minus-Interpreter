@@ -6,6 +6,9 @@
 void printArray(char key[], struct Entry e);
 void printNonArray(char key[], struct Entry e);
 
+/*
+    Prints the entries in the symbol table line by line. 
+*/
 void printSymbolTable(struct SymbolTable s) 
 {
   printf("\n--- SYMBOL TABLE ---\n");
@@ -22,6 +25,9 @@ void printSymbolTable(struct SymbolTable s)
   }
 }
 
+/*
+    Prints an entry that is not of an array type. 
+*/
 void printNonArray(char key[], struct Entry e)
 {
   printf("var: %s; type: %s; declaration line: %d; value: ", key, e.type, e.line);
@@ -36,6 +42,9 @@ void printNonArray(char key[], struct Entry e)
   }
 }
 
+/*
+    Prints an entry that is of an array type. 
+*/
 void printArray(char key[], struct Entry e)
 {
   printf("var: %s; type: %s[%d]; declaration line: %d; values: ", key, e.type, e.arraySize, e.line);

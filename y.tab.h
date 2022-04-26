@@ -39,88 +39,86 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     READ = 258,
-     WRITE = 259,
-     ELSE = 260,
-     IF = 261,
-     INT = 262,
-     FLOAT = 263,
-     VOID = 264,
-     WHILE = 265,
-     PLUS = 266,
-     MINUS = 267,
-     MULTIPLY = 268,
-     DIVIDE = 269,
-     EQUALS = 270,
-     NOT_EQUALS = 271,
-     LESS_THAN = 272,
-     LESS_OR_EQUAL = 273,
-     GREATER_THAN = 274,
-     GREATER_OR_EQUAL = 275,
-     ASSIGNMENT = 276,
-     COMMA = 277,
-     SEMICOLON = 278,
-     LPAREN = 279,
-     RPAREN = 280,
-     LSQUARE = 281,
-     RSQUARE = 282,
-     LCURLY = 283,
-     RCURLY = 284,
-     ID = 285,
-     NUM = 286,
-     IF_LOWER = 287
+     ELSE = 258,
+     IF = 259,
+     INT = 260,
+     FLOAT = 261,
+     VOID = 262,
+     WHILE = 263,
+     PLUS = 264,
+     MINUS = 265,
+     MULTIPLY = 266,
+     DIVIDE = 267,
+     EQUALS = 268,
+     NOT_EQUALS = 269,
+     LESS_THAN = 270,
+     LESS_OR_EQUAL = 271,
+     GREATER_THAN = 272,
+     GREATER_OR_EQUAL = 273,
+     ASSIGNMENT = 274,
+     COMMA = 275,
+     SEMICOLON = 276,
+     LPAREN = 277,
+     RPAREN = 278,
+     LSQUARE = 279,
+     RSQUARE = 280,
+     LCURLY = 281,
+     RCURLY = 282,
+     ID = 283,
+     NUM = 284,
+     WRITE = 285,
+     IF_LOWER = 286
    };
 #endif
 /* Tokens.  */
-#define READ 258
-#define WRITE 259
-#define ELSE 260
-#define IF 261
-#define INT 262
-#define FLOAT 263
-#define VOID 264
-#define WHILE 265
-#define PLUS 266
-#define MINUS 267
-#define MULTIPLY 268
-#define DIVIDE 269
-#define EQUALS 270
-#define NOT_EQUALS 271
-#define LESS_THAN 272
-#define LESS_OR_EQUAL 273
-#define GREATER_THAN 274
-#define GREATER_OR_EQUAL 275
-#define ASSIGNMENT 276
-#define COMMA 277
-#define SEMICOLON 278
-#define LPAREN 279
-#define RPAREN 280
-#define LSQUARE 281
-#define RSQUARE 282
-#define LCURLY 283
-#define RCURLY 284
-#define ID 285
-#define NUM 286
-#define IF_LOWER 287
+#define ELSE 258
+#define IF 259
+#define INT 260
+#define FLOAT 261
+#define VOID 262
+#define WHILE 263
+#define PLUS 264
+#define MINUS 265
+#define MULTIPLY 266
+#define DIVIDE 267
+#define EQUALS 268
+#define NOT_EQUALS 269
+#define LESS_THAN 270
+#define LESS_OR_EQUAL 271
+#define GREATER_THAN 272
+#define GREATER_OR_EQUAL 273
+#define ASSIGNMENT 274
+#define COMMA 275
+#define SEMICOLON 276
+#define LPAREN 277
+#define RPAREN 278
+#define LSQUARE 279
+#define RSQUARE 280
+#define LCURLY 281
+#define RCURLY 282
+#define ID 283
+#define NUM 284
+#define WRITE 285
+#define IF_LOWER 286
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 28 "parser.y"
+#line 25 "parser.y"
 {
     int number;
     float floating;
     char *str;
     char *operator;
-    char *IO;
     char *varType;
     char *statement;
     bool boolExp;
+    char *IO;
 }
 /* Line 1529 of yacc.c.  */
-#line 124 "y.tab.h"
+#line 122 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

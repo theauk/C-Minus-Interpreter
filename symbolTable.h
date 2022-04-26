@@ -3,12 +3,12 @@
 #include <string.h>
 
 struct Entry {
-    char type[50];
+    char type[10];
     bool isArray;
     int arraySize;
     float value;
     int line;
-    float array[100]; /* NOTE fix */
+    float array[100];
 };
 
 struct SymbolTable {
@@ -17,6 +17,9 @@ struct SymbolTable {
     int nextEntryIndex;
 };
 
+/*
+    Inserts a new entry into the symbol table.
+*/
 struct SymbolTable symbolTableInsert(struct SymbolTable s, char k[], char t[], bool isArr, float v, int l, int arrSize) 
 {
     strcpy(s.keys[s.nextEntryIndex], k);
@@ -35,11 +38,17 @@ struct SymbolTable symbolTableInsert(struct SymbolTable s, char k[], char t[], b
     return s;
 }
 
+/*
+    Gets variable from the symbol table at a certain index. 
+*/
 struct Entry symbolTableGet( struct SymbolTable s, int index ) 
 {
     return s.values[index];
 }
 
+/*
+    Updates values for an existing key. 
+*/
 struct SymbolTable symbolTableUpdate(struct SymbolTable s, int index, char t[], bool isArr, float v, int l, int arrSize) 
 {
     strcpy(s.values[index].type, t);
@@ -54,12 +63,18 @@ struct SymbolTable symbolTableUpdate(struct SymbolTable s, int index, char t[], 
     return s;
 }
 
+/*
+    Updates the array for an existing key (that is of an array type). 
+*/
 struct SymbolTable symbolTableUpdateArray(struct SymbolTable s, int index, int updateIndex, float newValue)
 {
     s.values[index].array[updateIndex] = newValue;
     return s;
 }
 
+/*
+    Checks if the symbol table contains a certain key. 
+*/
 int symbolTableContains(struct SymbolTable s, char k[] ) 
 {
     for(int i = 0; i < s.nextEntryIndex; i++) {

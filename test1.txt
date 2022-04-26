@@ -1,8 +1,14 @@
 /* This is a program without syntax errors 
 but with lexical errors */
-int program (void){
+int test (void) {
     int l;
+    int program;
     {
-        if(2 == 2) l = 1
+        write test
+        test = 2
+        l = 2
+        write l
+        l = l + 5 + l + 6
+        write l
     }
 }
