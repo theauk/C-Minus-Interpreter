@@ -4,6 +4,9 @@
 
 struct Entry {
     char type[50];
+    bool isArray;
+    int arraySize;
+    float array[100];
     float value;
     int line;
 };
@@ -14,15 +17,23 @@ struct SymbolTable {
     int nextEntryIndex;
 };
 
-struct SymbolTable symbolTableInsert( struct SymbolTable s, char k[], char t[], float v, int l) 
+struct SymbolTable symbolTableInsert(struct SymbolTable s, char k[], char t[], bool isArr, float v, int l, int arrSize) 
 {
     strcpy(s.keys[s.nextEntryIndex], k);
     struct Entry newEntry;
     strcpy(newEntry.type, t);
     newEntry.value = v;
     newEntry.line = l;
+    newEntry.isArray = isArr;
+
+    if (isArr)
+    {
+        newEntry.arraySize = arrSize;
+        printf("It's an array with size: %d\n", newEntry.arraySize);
+    }
+
     s.values[s.nextEntryIndex] = newEntry;
-    printf("AFTER insert: %s, %s, %f, %d\n", s.keys[s.nextEntryIndex], s.values[s.nextEntryIndex].type, s.values[s.nextEntryIndex].value, s.values[s.nextEntryIndex].line);
+    printf("AFTER insert: %s, %s, %d, %f, %d\n", s.keys[s.nextEntryIndex], s.values[s.nextEntryIndex].type, s.values[s.nextEntryIndex].isArray, s.values[s.nextEntryIndex].value, s.values[s.nextEntryIndex].line);
     return s;
 }
 
@@ -31,16 +42,23 @@ struct Entry symbolTableGet( struct SymbolTable s, int index )
     return s.values[index];
 }
 
-struct SymbolTable symbolTableUpdate( struct SymbolTable s, int index, char t[], float v, int l) 
+struct SymbolTable symbolTableUpdate(struct SymbolTable s, int index, char t[], bool isArr, float v, int l, int arrSize) 
 {
     strcpy(s.values[index].type, t);
+    s.values[index].isArray = isArr;
     s.values[index].value = v;
     s.values[index].line = l;
-    printf("AFTER update: %s, %s, %f, %d\n", s.keys[index], s.values[index].type, s.values[index].value, s.values[index].line);
+
+    if (isArr)
+    {
+        s.values[index].arraySize = arrSize;
+    }
+
+    printf("AFTER update: %s, %s, %d, %f, %d\n", s.keys[index], s.values[index].type, s.values[index].isArray, s.values[index].value, s.values[index].line);
     return s;
 }
 
-int symbolTableContains( struct SymbolTable s, char k[] ) 
+int symbolTableContains(struct SymbolTable s, char k[] ) 
 {
     printf("FOR k: %s\n", k);
     for(int i = 0; i < s.nextEntryIndex; i++) {

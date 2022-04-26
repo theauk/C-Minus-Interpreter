@@ -16,7 +16,7 @@
     void yyerror(char const *s);    // Function used for error messages
     void readInput(char id[]);
     void writeInput(char id[]);
-    void insertOrUpdateEntry(char type[], char key[], float val);
+    void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize);
     struct SymbolTable s;
 %}
 
@@ -73,10 +73,12 @@ declarationListTail: varDeclaration declarationListTail | /* epsilon */;
 varDeclaration: 
       typeSpecifier ID SEMICOLON
       { 
-        printf("72: %s, %s, %s\n", $1, $2, $3);  
-        insertOrUpdateEntry($1, $2, 0.0);
+        insertOrUpdateEntry($1, $2, 0.0, false, 0);
       }
       | typeSpecifier ID LSQUARE NUM RSQUARE SEMICOLON
+      {
+        insertOrUpdateEntry($1, $2, 0.0, true, $4);
+      }
       ;
 
 typeSpecifier: 
@@ -186,19 +188,19 @@ void writeInput(char id[])
 
 }
 
-void insertOrUpdateEntry(char type[], char key[], float val)
+void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize)
 {
   int containsIndex = symbolTableContains(s, key);
   printf("contains index: %d\n", containsIndex);
 
   if (containsIndex == -1) 
   {
-    s = symbolTableInsert(s, key, type, val, line);
+    s = symbolTableInsert(s, key, type, isArr, val, line, arrSize);
     s.nextEntryIndex = s.nextEntryIndex + 1;
     printf("Next entry index: %d\n", s.nextEntryIndex);
   } else 
   {
-    symbolTableUpdate(s, containsIndex, type, val, line);
+    s= symbolTableUpdate(s, containsIndex, type, isArr, val, line, arrSize);
   }
   
   printf("\n");

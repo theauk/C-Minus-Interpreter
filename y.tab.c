@@ -186,7 +186,7 @@ typedef union YYSTYPE
     void yyerror(char const *s);    // Function used for error messages
     void readInput(char id[]);
     void writeInput(char id[]);
-    void insertOrUpdateEntry(char type[], char key[], float val);
+    void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize);
     struct SymbolTable s;
 
 
@@ -499,13 +499,13 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    67,    67,    69,    69,    71,    71,    74,    79,    83,
-      85,    87,    91,    91,    93,    95,    95,    97,    99,    99,
-     101,   103,   103,   105,   105,   105,   105,   105,   107,   107,
-     109,   112,   116,   117,   121,   122,   126,   127,   131,   134,
-     134,   136,   138,   138,   140,   140,   140,   140,   140,   140,
-     142,   144,   144,   146,   146,   148,   150,   150,   152,   152,
-     155,   156,   157
+       0,    67,    67,    69,    69,    71,    71,    74,    78,    85,
+      87,    89,    93,    93,    95,    97,    97,    99,   101,   101,
+     103,   105,   105,   107,   107,   107,   107,   107,   109,   109,
+     111,   114,   118,   119,   123,   124,   128,   129,   133,   136,
+     136,   138,   140,   140,   142,   142,   142,   142,   142,   142,
+     144,   146,   146,   148,   148,   150,   152,   152,   154,   154,
+     157,   158,   159
 };
 #endif
 
@@ -1486,54 +1486,60 @@ yyreduce:
         case 7:
 #line 75 "parser.y"
     { 
-        printf("72: %s, %s, %s\n", (yyvsp[(1) - (3)].varType), (yyvsp[(2) - (3)].str), (yyvsp[(3) - (3)].operator));  
-        insertOrUpdateEntry((yyvsp[(1) - (3)].varType), (yyvsp[(2) - (3)].str), 0.0);
+        insertOrUpdateEntry((yyvsp[(1) - (3)].varType), (yyvsp[(2) - (3)].str), 0.0, false, 0);
+      }
+    break;
+
+  case 8:
+#line 79 "parser.y"
+    {
+        insertOrUpdateEntry((yyvsp[(1) - (6)].varType), (yyvsp[(2) - (6)].str), 0.0, true, (yyvsp[(4) - (6)].number));
       }
     break;
 
   case 9:
-#line 84 "parser.y"
-    {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
-    break;
-
-  case 10:
 #line 86 "parser.y"
     {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
-  case 11:
+  case 10:
 #line 88 "parser.y"
     {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
+  case 11:
+#line 90 "parser.y"
+    {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
+    break;
+
   case 32:
-#line 116 "parser.y"
+#line 118 "parser.y"
     { readInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 33:
-#line 117 "parser.y"
+#line 119 "parser.y"
     { writeInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 34:
-#line 121 "parser.y"
+#line 123 "parser.y"
     { readInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 36:
-#line 126 "parser.y"
+#line 128 "parser.y"
     { writeInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 38:
-#line 131 "parser.y"
+#line 133 "parser.y"
     {  }
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1537 "y.tab.c"
+#line 1543 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1747,7 +1753,7 @@ yyreturn:
 }
 
 
-#line 160 "parser.y"
+#line 162 "parser.y"
 
 #include "lex.yy.c" // Using Lex and yacc together
 
@@ -1777,19 +1783,19 @@ void writeInput(char id[])
 
 }
 
-void insertOrUpdateEntry(char type[], char key[], float val)
+void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize)
 {
   int containsIndex = symbolTableContains(s, key);
   printf("contains index: %d\n", containsIndex);
 
   if (containsIndex == -1) 
   {
-    s = symbolTableInsert(s, key, type, val, line);
+    s = symbolTableInsert(s, key, type, isArr, val, line, arrSize);
     s.nextEntryIndex = s.nextEntryIndex + 1;
     printf("Next entry index: %d\n", s.nextEntryIndex);
   } else 
   {
-    symbolTableUpdate(s, containsIndex, type, val, line);
+    s= symbolTableUpdate(s, containsIndex, type, isArr, val, line, arrSize);
   }
   
   printf("\n");
