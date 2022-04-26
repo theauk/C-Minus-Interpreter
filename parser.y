@@ -21,9 +21,8 @@
     void assignmentSimple(char key[], float val);
     void assignmentArray(char key[], float index, float val);
     float getVar(char var[]);
-    
+
     struct SymbolTable s;
-    struct Queue q;
 %}
 
 %union {
@@ -131,16 +130,7 @@ statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStm
 
 selectionStmt: IF LPAREN boolExpression RPAREN statement %prec IF_LOWER | IF LPAREN boolExpression RPAREN statement ELSE statement;
 
-iterationStmt: 
-      WHILE LPAREN boolExpression RPAREN statement
-      {
-        printf("%s\n", $5);
-        if ($3 == 0)
-        {
-          printf("TRUE\n");
-        }
-      }
-      ;
+iterationStmt: WHILE LPAREN boolExpression RPAREN statement;
 
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
@@ -153,21 +143,11 @@ assignmentStmt:
       }
       ;
 
-var: 
-      ID
-      { 
-        printf("var ID %s\n", $1); /* NOTE DELETE */
-        
-      }
-      | ID LSQUARE additiveExpression RSQUARE
-      { printf("var ID [] %f\n", $3); } /* NOTE DELETE */
-      ;
+var: ID | ID LSQUARE additiveExpression RSQUARE;
 
 boolExpression: 
       additiveExpression relop additiveExpression
       {
-        printf("BOOLEXP %f, %s, %f\n", $1, $2, $3);
-        printf("BOOL RES %d\n", getBoolExp($2, $1, $3));
         $$ = getBoolExp($2, $1, $3);
       }
       ;
@@ -176,12 +156,12 @@ relop: LESS_OR_EQUAL | LESS_THAN | GREATER_THAN | GREATER_OR_EQUAL | EQUALS | NO
 
 additiveExpression: 
       term { $$ = $1; }
-      | term addop additiveExpression { printf("calc %f\n", calculate($2, $1, $3)); $$ = calculate($2, $1, $3); }
+      | term addop additiveExpression { $$ = calculate($2, $1, $3); }
       ;
 
 term: 
       factor { $$ = $1; }
-      | factor mulop term { printf("calc %f\n", calculate($2, $1, $3)); $$ = calculate($2, $1, $3); }
+      | factor mulop term { $$ = calculate($2, $1, $3); }
       ; 
 
 addop: 
