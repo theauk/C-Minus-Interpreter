@@ -140,22 +140,25 @@
     #include <stdlib.h>
     #include <string.h>
     #include <stdbool.h>                /* Allows bool type usage */
-    #include "symbolTable.h"
+  
+    #include "printer.h"
+
     int yylex();                    // Built-in function that recognizes input stream tokens and returns them to the parser
     void yyerror(char const *s);    // Function used for error messages
     void readInput(char id[]);
     void writeInput(char id[]);
     void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize);
     void interpreterError(char error[], char val[]);
-    void printSymbolTable();
+    //void printSymbolTable();
     char * getExpType(float exp);
     float calculate(char op[], float num1, float num2);
-    void printArray(char key[], struct Entry e);
-    void printNonArray(char key[], struct Entry e);
+    //void printArray(char key[], struct Entry e);
+    //void printNonArray(char key[], struct Entry e);
     bool getBoolExp(char op[], float num1, float num2);
     void assignmentSimple(char key[], float val);
     void assignmentArray(char key[], float index, float val);
     float getVar(char var[]);
+
     struct SymbolTable s;
 
 
@@ -179,7 +182,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 25 "parser.y"
+#line 28 "parser.y"
 {
     int number;
     float floating;
@@ -191,7 +194,7 @@ typedef union YYSTYPE
     bool boolExp;
 }
 /* Line 193 of yacc.c.  */
-#line 195 "y.tab.c"
+#line 198 "y.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -204,7 +207,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 208 "y.tab.c"
+#line 211 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -510,12 +513,12 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    82,    82,    84,    84,    86,    86,    89,    93,   100,
-     101,   102,   105,   105,   107,   109,   109,   112,   116,   122,
-     124,   124,   126,   126,   126,   126,   126,   130,   130,   133,
-     144,   148,   155,   160,   165,   173,   173,   173,   173,   173,
-     173,   176,   177,   181,   182,   186,   187,   191,   192,   196,
-     197,   201,   205,   206,   210,   211,   215,   216
+       0,    85,    85,    87,    87,    89,    89,    92,    96,   103,
+     104,   105,   108,   108,   110,   112,   112,   115,   119,   125,
+     127,   127,   129,   129,   129,   129,   129,   131,   131,   133,
+     136,   140,   146,   146,   149,   155,   155,   155,   155,   155,
+     155,   158,   159,   163,   164,   168,   169,   173,   174,   178,
+     179,   183,   187,   188,   192,   193,   197,   198
 };
 #endif
 
@@ -1490,175 +1493,149 @@ yyreduce:
   switch (yyn)
     {
         case 7:
-#line 90 "parser.y"
+#line 93 "parser.y"
     { 
         insertOrUpdateEntry((yyvsp[(1) - (3)].varType), (yyvsp[(2) - (3)].str), 0.0, false, 0); /* Insert value into symbol table */
       }
     break;
 
   case 8:
-#line 94 "parser.y"
+#line 97 "parser.y"
     {  
         insertOrUpdateEntry((yyvsp[(1) - (6)].varType), (yyvsp[(2) - (6)].str), 0.0, true, (yyvsp[(4) - (6)].floating)); /* Insert array into symbol table */
       }
     break;
 
   case 9:
-#line 100 "parser.y"
+#line 103 "parser.y"
     {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
   case 10:
-#line 101 "parser.y"
+#line 104 "parser.y"
     {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
   case 11:
-#line 102 "parser.y"
+#line 105 "parser.y"
     {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
   case 17:
-#line 113 "parser.y"
+#line 116 "parser.y"
     { 
     insertOrUpdateEntry((yyvsp[(1) - (2)].varType), (yyvsp[(2) - (2)].str), 0.0, false, 0); /* NOTE: NEED TO READ */
   }
     break;
 
   case 18:
-#line 117 "parser.y"
+#line 120 "parser.y"
     { 
     insertOrUpdateEntry((yyvsp[(1) - (4)].varType), (yyvsp[(2) - (4)].str), 0.0, true, 0); /* NOTE: NEED TO READ */
   }
     break;
 
-  case 29:
-#line 134 "parser.y"
-    {
-        printf("%s\n", (yyvsp[(5) - (5)].str));
-        if ((yyvsp[(3) - (5)].boolExp) == 0)
-        {
-          printf("TRUE\n");
-        }
-      }
-    break;
-
   case 30:
-#line 145 "parser.y"
+#line 137 "parser.y"
     {
         assignmentSimple((yyvsp[(1) - (3)].str), (yyvsp[(3) - (3)].floating));
       }
     break;
 
   case 31:
-#line 149 "parser.y"
+#line 141 "parser.y"
     {
         assignmentArray((yyvsp[(1) - (6)].str), (yyvsp[(3) - (6)].floating), (yyvsp[(6) - (6)].floating));
       }
     break;
 
-  case 32:
-#line 156 "parser.y"
-    { 
-        printf("var ID %s\n", (yyvsp[(1) - (1)].str)); /* NOTE DELETE */
-        
-      }
-    break;
-
-  case 33:
-#line 161 "parser.y"
-    { printf("var ID [] %f\n", (yyvsp[(3) - (4)].floating)); }
-    break;
-
   case 34:
-#line 166 "parser.y"
+#line 150 "parser.y"
     {
-        printf("BOOLEXP %f, %s, %f\n", (yyvsp[(1) - (3)].floating), (yyvsp[(2) - (3)].operator), (yyvsp[(3) - (3)].floating));
-        printf("BOOL RES %d\n", getBoolExp((yyvsp[(2) - (3)].operator), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)));
         (yyval.boolExp) = getBoolExp((yyvsp[(2) - (3)].operator), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating));
       }
     break;
 
   case 41:
-#line 176 "parser.y"
+#line 158 "parser.y"
     { (yyval.floating) = (yyvsp[(1) - (1)].floating); }
     break;
 
   case 42:
-#line 177 "parser.y"
-    { printf("calc %f\n", calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating))); (yyval.floating) = calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)); }
+#line 159 "parser.y"
+    { (yyval.floating) = calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)); }
     break;
 
   case 43:
-#line 181 "parser.y"
+#line 163 "parser.y"
     { (yyval.floating) = (yyvsp[(1) - (1)].floating); }
     break;
 
   case 44:
-#line 182 "parser.y"
-    { printf("calc %f\n", calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating))); (yyval.floating) = calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)); }
+#line 164 "parser.y"
+    { (yyval.floating) = calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)); }
     break;
 
   case 45:
-#line 186 "parser.y"
+#line 168 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 46:
-#line 187 "parser.y"
+#line 169 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 47:
-#line 191 "parser.y"
+#line 173 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 48:
-#line 192 "parser.y"
+#line 174 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 49:
-#line 196 "parser.y"
-    { (yyval.floating) = (yyvsp[(2) - (3)].floating); printf("factor add %f\n", (yyvsp[(2) - (3)].floating));}
+#line 178 "parser.y"
+    { (yyval.floating) = (yyvsp[(2) - (3)].floating);}
     break;
 
   case 50:
-#line 198 "parser.y"
+#line 180 "parser.y"
     { 
     (yyval.floating) = getVar((yyvsp[(1) - (1)].str));
   }
     break;
 
   case 51:
-#line 201 "parser.y"
-    { printf("factor NUM %f\n", yylval.floating); (yyval.floating) = yylval.floating; }
+#line 183 "parser.y"
+    { (yyval.floating) = yylval.floating; }
     break;
 
   case 52:
-#line 205 "parser.y"
+#line 187 "parser.y"
     { readInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 53:
-#line 206 "parser.y"
+#line 188 "parser.y"
     { writeInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 54:
-#line 210 "parser.y"
+#line 192 "parser.y"
     { readInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 56:
-#line 215 "parser.y"
+#line 197 "parser.y"
     { writeInput((yyvsp[(2) - (3)].str)); }
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1662 "y.tab.c"
+#line 1639 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1872,53 +1849,22 @@ yyreturn:
 }
 
 
-#line 219 "parser.y"
+#line 201 "parser.y"
 
 #include "lex.yy.c" // Using Lex and yacc together
-
-void readInput(char id[])
-{
-  /*char input[40];
-  scanf(" %[^\n]s", input);
-  printf("input: %s", input);*/
-    
-  /*printf("input value for %s\n", id);
-  scanf("%s", &input);
-  printf("INPUT %s", input);
-  int containsIndex = symbolTableContains(s, id);
-
-  if (containsIndex == -1) {
-    printf("Variable %s not declared\n", id);
-  } else {
-    struct Entry updateEntry = symbolTableGet(s, containsIndex);
-    updateEntry.value = input;
-    symbolTableUpdate(s, containsIndex, updateEntry);
-  }*/
-  
-}
-
-void writeInput(char id[])
-{
-
-}
 
 void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize)
 {
   int containsIndex = symbolTableContains(s, key);
-  printf("contains index: %d\n", containsIndex);
-
   if (containsIndex == -1) 
   {
     s = symbolTableInsert(s, key, type, isArr, val, line, arrSize);
     s.nextEntryIndex = s.nextEntryIndex + 1;
-    printf("Next entry index: %d\n", s.nextEntryIndex);
   } 
   else 
   {
     s = symbolTableUpdate(s, containsIndex, type, isArr, val, line, arrSize);
   }
-  
-  printf("\n");
 }
 
 char * getExpType(float exp)
@@ -1969,21 +1915,13 @@ bool getBoolExp(char op[], float num1, float num2)
   }
 }
 
-void interpreterError(char error[], char val[])
-{
-  printf("Ln %d: %s %s", line - 1, val, error);
-  exit(1); /* Terminates when encountering a semantic error */
-}
-
 float getVar(char var[]) 
 {
-    printf("factor var %s\n", var);
     int containsIndex = symbolTableContains(s, var);
     if (containsIndex == -1)
     {
       interpreterError("variable not declared", var);
     }
-    printf("var VALUE %f\n", symbolTableGet(s, containsIndex).value);
     return symbolTableGet(s, containsIndex).value;
 }
 
@@ -1998,8 +1936,6 @@ void assignmentSimple(char key[], float val)
   else
   {
     struct Entry match = symbolTableGet(s, containsIndex);
-    printf("TYPE: %s\n", getExpType(val));
-
     if (match.isArray)
     {
       interpreterError("assignment to expression with array type", "");
@@ -2010,9 +1946,7 @@ void assignmentSimple(char key[], float val)
     }
     else 
     {
-      printf("ASSIGNMENT GET BEFORE update: %s, %s, isA %d, %f, %d\n", s.keys[containsIndex], s.values[containsIndex].type, s.values[containsIndex].isArray, s.values[containsIndex].value, s.values[containsIndex].line);
       s = symbolTableUpdate(s, containsIndex, match.type, match.isArray, val, match.line, match.arraySize);
-      printf("ASSIGNMENT AFTER update: %s, %s, isA %d, %f, %d\n", s.keys[containsIndex], s.values[containsIndex].type, s.values[containsIndex].isArray, s.values[containsIndex].value, s.values[containsIndex].line);
     } 
   }
 }
@@ -2027,7 +1961,6 @@ void assignmentArray(char key[], float index, float val)
   else
   {
     struct Entry match = symbolTableGet(s, containsIndex);
-
     if (!match.isArray)
     {
       interpreterError("is not an array so cannnot assign value", key);
@@ -2047,65 +1980,43 @@ void assignmentArray(char key[], float index, float val)
   }
 }
 
-
-
-
-void printSymbolTable() 
+void interpreterError(char error[], char val[])
 {
-  printf("\n--- SYMBOL TABLE ---\n");
-  for(int i = 0; i < s.nextEntryIndex; i++) 
-  {
-    if (s.values[i].isArray)
-    {
-      printArray(s.keys[i], s.values[i]);
-    }
-    else 
-    {
-      printNonArray(s.keys[i], s.values[i]);
-    }
-  }
+  printf("Ln %d: %s %s", line - 1, val, error);
+  exit(1); /* Terminates when encountering a semantic error */
 }
 
-void printNonArray(char key[], struct Entry e)
+void readInput(char id[])
 {
-  printf("var: %s; type: %s; declaration line: %d; value: ", key, e.type, e.line);
-  if (strcmp(e.type, "int") == 0)
-  {
-    int val = e.value;
-    printf("%d; \n", val);
-  }
-  else 
-  {
-    printf("%f; \n", e.value);
-  }
+  /*char input[40];
+  scanf(" %[^\n]s", input);
+  printf("input: %s", input);*/
+    
+  /*printf("input value for %s\n", id);
+  scanf("%s", &input);
+  printf("INPUT %s", input);
+  int containsIndex = symbolTableContains(s, id);
+
+  if (containsIndex == -1) {
+    printf("Variable %s not declared\n", id);
+  } else {
+    struct Entry updateEntry = symbolTableGet(s, containsIndex);
+    updateEntry.value = input;
+    symbolTableUpdate(s, containsIndex, updateEntry);
+  }*/
+  
 }
 
-void printArray(char key[], struct Entry e)
+void writeInput(char id[])
 {
-  printf("var: %s; type: %s[%d]; declaration line: %d; values: ", key, e.type, e.arraySize, e.line);
-  if (strcmp(e.type, "int") == 0)
-  {
-    printf("[ ");
-    for (int i = 0; i < e.arraySize; i++) 
-    {
-      int val = e.array[i];
-      printf("%d ", val);
-    }
-    printf("]\n");
-  }
-  else 
-  {
-    printf("[ ");
-    for (int i = 0; i < e.arraySize; i++) printf("%f ", e.array[i]);
-    printf("]\n");
-  }
+
 }
                                                                               
 int main(void) 
 {     
   yyparse();
   printf("no syntax errors found while parsing\n");
-  printSymbolTable();
+  printSymbolTable(s);
 }
 
 // Plan:

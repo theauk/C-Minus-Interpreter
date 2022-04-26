@@ -2,43 +2,39 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
-    #include <stdbool.h>                /* Allows bool type usage */
-    #include "symbolTable.h"
-    #include "queue.h"
+    #include <stdbool.h>            // Allows bool type usage
+    #include "printer.h"            // Used to print symbol table
 
     int yylex();                    // Built-in function that recognizes input stream tokens and returns them to the parser
     void yyerror(char const *s);    // Function used for error messages
-    void readInput(char id[]);
-    void writeInput(char id[]);
-    void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize);
+    
+    void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize); // Functions defined below
     void interpreterError(char error[], char val[]);
-    void printSymbolTable();
     char * getExpType(float exp);
     float calculate(char op[], float num1, float num2);
-    void printArray(char key[], struct Entry e);
-    void printNonArray(char key[], struct Entry e);
     bool getBoolExp(char op[], float num1, float num2);
     void assignmentSimple(char key[], float val);
     void assignmentArray(char key[], float index, float val);
     float getVar(char var[]);
+    void readInput(char id[]);
+    void writeInput(char id[]);
 
-    struct SymbolTable s;
+    struct SymbolTable s; // Symbol table structure from symbolTable.h
 %}
 
+// Types for tokens
 %union {
     int number;
     float floating;
     char *str;
     char *operator;
-    char *IO;
     char *varType;
     char *statement;
     bool boolExp;
+    char *IO;
 };
 
 // Definitions of tokens
-%token <IO> READ
-%token <IO> WRITE
 %token <operator> ELSE
 %token <operator> IF
 %token <varType> INT
@@ -66,10 +62,13 @@
 %token <operator> RCURLY
 %token <str> ID
 %token <floating> NUM
+%token <IO> READ
+%token <IO> WRITE
 
+// Additional type definitions
 %type <varType> typeSpecifier
 %type <floating> factor additiveExpression term
-%type <str> var addop mulop statement
+%type <str> var addop mulop
 %type <boolExp> boolExpression
 %type <operator> relop
 
@@ -114,11 +113,11 @@ paramListTail: COMMA param paramListTail | /* epsilon */;
 param:
   typeSpecifier ID
   { 
-    insertOrUpdateEntry($1, $2, 0.0, false, 0); /* NOTE: NEED TO READ */
+    insertOrUpdateEntry($1, $2, 0.0, false, 0); /* Insert parameter into symbol table */
   }
   | typeSpecifier ID LSQUARE RSQUARE
   { 
-    insertOrUpdateEntry($1, $2, 0.0, true, 0); /* NOTE: NEED TO READ */
+    insertOrUpdateEntry($1, $2, 0.0, true, 0); /* Insert array parameter type into symbol table */
   }
   ;
 
@@ -135,11 +134,11 @@ iterationStmt: WHILE LPAREN boolExpression RPAREN statement;
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
       {
-        assignmentSimple($1, $3);
+        assignmentSimple($1, $3); /* Perform non-array assignment */
       }
       | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
       {
-        assignmentArray($1, $3, $6);
+        assignmentArray($1, $3, $6); /* Perform array assignment */
       }
       ;
 
@@ -148,7 +147,7 @@ var: ID | ID LSQUARE additiveExpression RSQUARE;
 boolExpression: 
       additiveExpression relop additiveExpression
       {
-        $$ = getBoolExp($2, $1, $3);
+        $$ = getBoolExp($2, $1, $3); /* Get the boolean value for the relop expression */
       }
       ;
 
@@ -156,12 +155,12 @@ relop: LESS_OR_EQUAL | LESS_THAN | GREATER_THAN | GREATER_OR_EQUAL | EQUALS | NO
 
 additiveExpression: 
       term { $$ = $1; }
-      | term addop additiveExpression { $$ = calculate($2, $1, $3); }
+      | term addop additiveExpression { $$ = calculate($2, $1, $3); } /* Perform plus/minus calculation */
       ;
 
 term: 
       factor { $$ = $1; }
-      | factor mulop term { $$ = calculate($2, $1, $3); }
+      | factor mulop term { $$ = calculate($2, $1, $3); } /* Perform multiply/divide calculation */
       ; 
 
 addop: 
@@ -175,12 +174,12 @@ mulop:
       ;
 
 factor: 
-  LPAREN additiveExpression RPAREN { $$ = $2; printf("factor add %f\n", $2);}
+  LPAREN additiveExpression RPAREN { $$ = $2;}
   | var 
   { 
-    $$ = getVar($1);
+    $$ = getVar($1); /* Get the variable value from the symbol table */
   }
-  | NUM { printf("factor NUM %f\n", yylval.floating); $$ = yylval.floating; }
+  | NUM { $$ = yylval.floating; } /* Get the NUM from the Lex scanner */
   ;
 
 ioStmt: 
@@ -200,6 +199,163 @@ ioWriteTail:
 
 %%
 #include "lex.yy.c" // Using Lex and yacc together
+
+/*
+  Checks if a key is already in the symbol table. 
+  If yes, updates the entry. Otherwise, creates a new entry.
+*/
+void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize)
+{
+  int containsIndex = symbolTableContains(s, key);
+  if (containsIndex == -1) 
+  {
+    s = symbolTableInsert(s, key, type, isArr, val, line, arrSize);
+    s.nextEntryIndex = s.nextEntryIndex + 1;
+  } 
+  else 
+  {
+    s = symbolTableUpdate(s, containsIndex, type, isArr, val, line, arrSize);
+  }
+}
+
+/*
+  Checks if an expression has to be a float value.
+*/
+char * getExpType(float exp)
+{
+    int truncated = (int)exp;
+    if (exp == truncated)
+    {
+      return "int";
+    } 
+    else 
+    {
+      return "float";
+    }
+}
+
+/*
+  Computes arithmetric expressions for two numbers. 
+*/
+float calculate(char op[], float num1, float num2)
+{
+  if (strcmp(op, "*") == 0)
+  {
+    return num1 * num2;
+  }
+  else if (strcmp(op, "/") == 0)
+  {
+    return num1 / num2;
+  }
+  else if (strcmp(op, "+") == 0)
+  {
+    return num1 + num2;
+  }
+  else
+  {
+    return num1 - num2;
+  }
+}
+
+/*
+  Gets the boolean value for comparison between two numbers. 
+*/
+bool getBoolExp(char op[], float num1, float num2) 
+{
+  if (strcmp("==", op) == 0) return num1 == num2;
+  else if (strcmp("!=", op) == 0) return num1 != num2;
+  else if (strcmp("<", op) == 0) return num1 < num2;
+  else if (strcmp("<=", op) == 0) return num1 <= num2;
+  else if (strcmp(">", op) == 0) return num1 > num2;
+  else if (strcmp(">=", op) == 0) return num1 >= num2;
+  else 
+  {
+    interpreterError("operator is not correct", "");
+    return false;
+  }
+}
+
+/*
+  Checks if a variable is declared. If yes, returns it. 
+*/
+float getVar(char var[]) 
+{
+    int containsIndex = symbolTableContains(s, var);
+    if (containsIndex == -1)
+    {
+      interpreterError("variable not declared", var);
+    }
+    return symbolTableGet(s, containsIndex).value;
+}
+
+/*
+  Performs assignment for non-array variables. 
+*/
+void assignmentSimple(char key[], float val)
+{
+  int containsIndex = symbolTableContains(s, key);
+  if (containsIndex == -1) // Check if variable is in symbol table
+  {
+    interpreterError("variable not declared", key);
+  } 
+  else
+  {
+    struct Entry match = symbolTableGet(s, containsIndex);
+    if (match.isArray) // Check if there is invalid array assignment to non-array variable
+    {
+      interpreterError("assignment to expression with array type", "");
+    }
+    else if ((strcmp(getExpType(val), "float") == 0) && (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
+    {
+      interpreterError("type mismatch", "float and int");
+    }
+    else // Update symbol table with new values
+    {
+      s = symbolTableUpdate(s, containsIndex, match.type, match.isArray, val, match.line, match.arraySize);
+    } 
+  }
+}
+
+/*
+  Performs assignment for array variables.
+*/
+void assignmentArray(char key[], float index, float val)
+{
+  int containsIndex = symbolTableContains(s, key);
+  if (containsIndex == -1) // Check if variable is in symbol table
+  {
+    interpreterError("variable not declared", key);
+  } 
+  else
+  {
+    struct Entry match = symbolTableGet(s, containsIndex);
+    if (!match.isArray) // Check if there is invalid non-array assignment to array variable
+    {
+      interpreterError("is not an array so cannnot assign value", key);
+    } 
+    else if ((strcmp(getExpType(index), "float") == 0)) // Check if array subscript is an integer
+    {
+      interpreterError("array subscript is not an integer", ""); 
+    }
+    else if ((strcmp(getExpType(val), "float") == 0) && (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
+    {
+      interpreterError("type mismatch", "float and int");
+    }
+    else // Update symbol table with new values
+    {
+      s = symbolTableUpdateArray(s, containsIndex, index, val);
+    } 
+  }
+}
+
+/*
+  Prints out interpretation errors. 
+*/
+void interpreterError(char error[], char val[])
+{
+  printf("Ln %d: %s %s", line - 1, val, error);
+  exit(1); /* Terminates when encountering a semantic error */
+}
 
 void readInput(char id[])
 {
@@ -226,227 +382,10 @@ void writeInput(char id[])
 {
 
 }
-
-void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize)
-{
-  int containsIndex = symbolTableContains(s, key);
-  printf("contains index: %d\n", containsIndex);
-
-  if (containsIndex == -1) 
-  {
-    s = symbolTableInsert(s, key, type, isArr, val, line, arrSize);
-    s.nextEntryIndex = s.nextEntryIndex + 1;
-    printf("Next entry index: %d\n", s.nextEntryIndex);
-  } 
-  else 
-  {
-    s = symbolTableUpdate(s, containsIndex, type, isArr, val, line, arrSize);
-  }
-  
-  printf("\n");
-}
-
-char * getExpType(float exp)
-{
-    int truncated = (int)exp;
-    if (exp == truncated)
-    {
-      return "int";
-    } 
-    else 
-    {
-      return "float";
-    }
-}
-
-float calculate(char op[], float num1, float num2)
-{
-  if (strcmp(op, "*") == 0)
-  {
-    return num1 * num2;
-  }
-  else if (strcmp(op, "/") == 0)
-  {
-    return num1 / num2;
-  }
-  else if (strcmp(op, "+") == 0)
-  {
-    return num1 + num2;
-  }
-  else
-  {
-    return num1 - num2;
-  }
-}
-
-bool getBoolExp(char op[], float num1, float num2) 
-{
-  if (strcmp("==", op) == 0) return num1 == num2;
-  else if (strcmp("!=", op) == 0) return num1 != num2;
-  else if (strcmp("<", op) == 0) return num1 < num2;
-  else if (strcmp("<=", op) == 0) return num1 <= num2;
-  else if (strcmp(">", op) == 0) return num1 > num2;
-  else if (strcmp(">=", op) == 0) return num1 >= num2;
-  else 
-  {
-    interpreterError("operator is not correct", "");
-    return false;
-  }
-}
-
-void interpreterError(char error[], char val[])
-{
-  printf("Ln %d: %s %s", line - 1, val, error);
-  exit(1); /* Terminates when encountering a semantic error */
-}
-
-float getVar(char var[]) 
-{
-    printf("factor var %s\n", var);
-    int containsIndex = symbolTableContains(s, var);
-    if (containsIndex == -1)
-    {
-      interpreterError("variable not declared", var);
-    }
-    printf("var VALUE %f\n", symbolTableGet(s, containsIndex).value);
-    return symbolTableGet(s, containsIndex).value;
-}
-
-
-void assignmentSimple(char key[], float val)
-{
-  int containsIndex = symbolTableContains(s, key);
-  if (containsIndex == -1)
-  {
-    interpreterError("variable not declared", key);
-  } 
-  else
-  {
-    struct Entry match = symbolTableGet(s, containsIndex);
-    printf("TYPE: %s\n", getExpType(val));
-
-    if (match.isArray)
-    {
-      interpreterError("assignment to expression with array type", "");
-    }
-    else if ((strcmp(getExpType(val), "float") == 0) && (strcmp(match.type, "int") == 0))
-    {
-      interpreterError("type mismatch", "float and int");
-    }
-    else 
-    {
-      printf("ASSIGNMENT GET BEFORE update: %s, %s, isA %d, %f, %d\n", s.keys[containsIndex], s.values[containsIndex].type, s.values[containsIndex].isArray, s.values[containsIndex].value, s.values[containsIndex].line);
-      s = symbolTableUpdate(s, containsIndex, match.type, match.isArray, val, match.line, match.arraySize);
-      printf("ASSIGNMENT AFTER update: %s, %s, isA %d, %f, %d\n", s.keys[containsIndex], s.values[containsIndex].type, s.values[containsIndex].isArray, s.values[containsIndex].value, s.values[containsIndex].line);
-    } 
-  }
-}
-
-void assignmentArray(char key[], float index, float val)
-{
-  int containsIndex = symbolTableContains(s, key);
-  if (containsIndex == -1)
-  {
-    interpreterError("variable not declared", key);
-  } 
-  else
-  {
-    struct Entry match = symbolTableGet(s, containsIndex);
-
-    if (!match.isArray)
-    {
-      interpreterError("is not an array so cannnot assign value", key);
-    }
-    else if ((strcmp(getExpType(index), "float") == 0))
-    {
-      interpreterError("array subscript is not an integer", "");
-    }
-    else if ((strcmp(getExpType(val), "float") == 0) && (strcmp(match.type, "int") == 0))
-    {
-      interpreterError("type mismatch", "float and int");
-    }
-    else 
-    {
-      s = symbolTableUpdateArray(s, containsIndex, index, val);
-    } 
-  }
-}
-
-
-
-
-void printSymbolTable() 
-{
-  printf("\n--- SYMBOL TABLE ---\n");
-  for(int i = 0; i < s.nextEntryIndex; i++) 
-  {
-    if (s.values[i].isArray)
-    {
-      printArray(s.keys[i], s.values[i]);
-    }
-    else 
-    {
-      printNonArray(s.keys[i], s.values[i]);
-    }
-  }
-}
-
-void printNonArray(char key[], struct Entry e)
-{
-  printf("var: %s; type: %s; declaration line: %d; value: ", key, e.type, e.line);
-  if (strcmp(e.type, "int") == 0)
-  {
-    int val = e.value;
-    printf("%d; \n", val);
-  }
-  else 
-  {
-    printf("%f; \n", e.value);
-  }
-}
-
-void printArray(char key[], struct Entry e)
-{
-  printf("var: %s; type: %s[%d]; declaration line: %d; values: ", key, e.type, e.arraySize, e.line);
-  if (strcmp(e.type, "int") == 0)
-  {
-    printf("[ ");
-    for (int i = 0; i < e.arraySize; i++) 
-    {
-      int val = e.array[i];
-      printf("%d ", val);
-    }
-    printf("]\n");
-  }
-  else 
-  {
-    printf("[ ");
-    for (int i = 0; i < e.arraySize; i++) printf("%f ", e.array[i]);
-    printf("]\n");
-  }
-}
                                                                               
 int main(void) 
 {     
   yyparse();
   printf("no syntax errors found while parsing\n");
-  printSymbolTable();
+  printSymbolTable(s);
 }
-
-// Plan:
-// figure out $$
-// handle read (add to lex + add function that stores in yacc)
-// handle write (similar)
-// check symbol table import works
-// print whole table at the end
-// make insert function (remember contains + increment)
-// 1. for newly insert 2. for update
-// handle operators (+, -, etc.) – remember to check for types
-// handle re-assignment errors 
-
-// Report
-// finish table
-
-// Note
-// added IO statement rules + to the statement -> ioStatement too
-// read and write is a statement too so should be inside the main { }

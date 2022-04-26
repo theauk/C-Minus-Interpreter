@@ -29,11 +29,9 @@ struct SymbolTable symbolTableInsert(struct SymbolTable s, char k[], char t[], b
     if (isArr)
     {
         newEntry.arraySize = arrSize;
-        printf("It's an array with size: %d\n", newEntry.arraySize);
     }
 
     s.values[s.nextEntryIndex] = newEntry;
-    printf("AFTER insert: %s, %s, isA %d, %f, %d\n", s.keys[s.nextEntryIndex], s.values[s.nextEntryIndex].type, s.values[s.nextEntryIndex].isArray, s.values[s.nextEntryIndex].value, s.values[s.nextEntryIndex].line);
     return s;
 }
 
@@ -53,8 +51,6 @@ struct SymbolTable symbolTableUpdate(struct SymbolTable s, int index, char t[], 
     {
         s.values[index].arraySize = arrSize;
     }
-
-    printf("AFTER update: %s, %s, isA %d, %f, %d\n", s.keys[index], s.values[index].type, s.values[index].isArray, s.values[index].value, s.values[index].line);
     return s;
 }
 
@@ -66,17 +62,10 @@ struct SymbolTable symbolTableUpdateArray(struct SymbolTable s, int index, int u
 
 int symbolTableContains(struct SymbolTable s, char k[] ) 
 {
-    //printf("FOR k: %s\n", k);
     for(int i = 0; i < s.nextEntryIndex; i++) {
-        //printf("FOR contains: %i, %s\n", i, s.keys[i]);
         if (strcmp(s.keys[i], k) == 0) {
             return i;
         }
     }
     return -1;
 }
-
-// remember:
-// check if already exists before insert
-// increase next entry index (check if too large)
-// delete test table
