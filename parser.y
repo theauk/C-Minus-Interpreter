@@ -3,13 +3,20 @@
     char *str;
     char *operator;
     char *IO;
+    char *varType;
+    char *statement;
 };
 
 %{
     #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
     #include "symbolTable.h"
     int yylex();                    // Built-in function that recognizes input stream tokens and returns them to the parser
     void yyerror(char const *s);    // Function used for error messages
+    void readInput(char id[]);
+    void writeInput(char id[]);
+    void insertOrUpdateEntry(char type[], char key[], float val);
     struct SymbolTable s;
 %}
 
@@ -18,9 +25,9 @@
 %token <IO> WRITE
 %token <operator> ELSE
 %token <operator> IF
-%token <operator> INT
-%token <operator> FLOAT
-%token <operator> VOID
+%token <varType> INT
+%token <varType> FLOAT
+%token <varType> VOID
 %token <operator> WHILE
 %token <operator> PLUS
 %token <operator> MINUS
@@ -44,6 +51,10 @@
 %token <str> ID
 %token <number> NUM
 
+%type <varType> typeSpecifier
+/*%type <operator> varDeclaration assignmentStmt var expression
+%type <operator> varDeclarationTail*/
+
 // Gives ELSE precedence over just IF (precedences goes in increasing order). To avoid dangling else. 
 %nonassoc IF_LOWER
 %nonassoc ELSE
@@ -53,54 +64,145 @@
 
 // Grammar Rules
 %%
-program: typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY
+program: typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY;
+
 declarationList: varDeclaration declarationListTail | ioStmt;
+
 declarationListTail: varDeclaration declarationListTail | /* epsilon */;
-varDeclaration: typeSpecifier ID varDeclarationTail;
-varDeclarationTail: SEMICOLON | LSQUARE NUM RSQUARE SEMICOLON;
-typeSpecifier: INT | FLOAT | VOID;
+
+varDeclaration: 
+      typeSpecifier ID SEMICOLON
+      { 
+        printf("72: %s, %s, %s\n", $1, $2, $3);  
+        insertOrUpdateEntry($1, $2, 0.0);
+      }
+      | typeSpecifier ID LSQUARE NUM RSQUARE SEMICOLON
+      ;
+
+typeSpecifier: 
+      INT 
+      {$$ = $1;}
+      | FLOAT 
+      {$$ = $1;}
+      | VOID
+      {$$ = $1;}
+      ;
+
 params: paramList | VOID; 
+
 paramList: param paramListTail;
+
 paramListTail: COMMA param paramListTail | /* epsilon */;
+
 param: typeSpecifier ID paramTail;
+
 paramTail: LSQUARE RSQUARE | /* epsilon */;
+
 compoundStmt: LCURLY statementList RCURLY
+
 statementList: statement statementList | /* epsilon */;
+
 statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStmt ;
+
 selectionStmt: IF LPAREN expression RPAREN statement %prec IF_LOWER | IF LPAREN expression RPAREN statement ELSE statement;
+
 iterationStmt: WHILE LPAREN expression RPAREN statement;
-assignmentStmt: var ASSIGNMENT expression;
+
+assignmentStmt: 
+      var ASSIGNMENT expression
+      ;
 
 ioStmt: 
-      READ ID ioTail 
-      | WRITE ID ioTail ;
+      READ ID ioReadTail { readInput($2); }
+      | WRITE ID ioWriteTail { writeInput($2); } 
+      ;
 
-ioTail: 
-      COMMA ID ioTail 
-      | SEMICOLON ;
+ioReadTail: 
+      COMMA ID ioReadTail { readInput($2); }
+      | SEMICOLON 
+      ;
 
-var: ID varTail;
+ioWriteTail: 
+      COMMA ID ioWriteTail { writeInput($2); }
+      | SEMICOLON 
+      ;
+
+var: 
+      ID varTail {  }
+      ;
+
 varTail: LSQUARE expression RSQUARE | /* epsilon */;
+
 expression: additiveExpression expressionTail;
+
 expressionTail: relop additiveExpression expressionTail | /* epsilon */;
+
 relop: LESS_OR_EQUAL | LESS_THAN | GREATER_THAN | GREATER_OR_EQUAL | EQUALS | NOT_EQUALS;
+
 additiveExpression: term additiveExpressionTail;
+
 additiveExpressionTail: addop term additiveExpressionTail | /* epsilon */;
+
 addop: PLUS | MINUS ;
+
 term: factor termTail;
+
 termTail: mulop factor termTail | /* epsilon */;
+
 mulop: MULTIPLY | DIVIDE;
 
 factor: 
   LPAREN expression RPAREN 
   | var 
   | NUM 
-    {
-      printf("%d\n", $1);
-    };
+  ;
 
 %%
 #include "lex.yy.c" // Using Lex and yacc together
+
+void readInput(char id[])
+{
+  /*char input[40];
+  scanf(" %[^\n]s", input);
+  printf("input: %s", input);*/
+    
+  /*printf("input value for %s\n", id);
+  scanf("%s", &input);
+  printf("INPUT %s", input);
+  int containsIndex = symbolTableContains(s, id);
+
+  if (containsIndex == -1) {
+    printf("Variable %s not declared\n", id);
+  } else {
+    struct Entry updateEntry = symbolTableGet(s, containsIndex);
+    updateEntry.value = input;
+    symbolTableUpdate(s, containsIndex, updateEntry);
+  }*/
+  
+}
+
+void writeInput(char id[])
+{
+
+}
+
+void insertOrUpdateEntry(char type[], char key[], float val)
+{
+  int containsIndex = symbolTableContains(s, key);
+  printf("contains index: %d\n", containsIndex);
+
+  if (containsIndex == -1) 
+  {
+    s = symbolTableInsert(s, key, type, val, line);
+    s.nextEntryIndex = s.nextEntryIndex + 1;
+    printf("Next entry index: %d\n", s.nextEntryIndex);
+  } else 
+  {
+    symbolTableUpdate(s, containsIndex, type, val, line);
+  }
+  
+  printf("\n");
+}
                                                                               
 int main(void) 
 {     

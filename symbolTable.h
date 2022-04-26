@@ -14,19 +14,30 @@ struct SymbolTable {
     int nextEntryIndex;
 };
 
-struct SymbolTable symbolTableInsert( struct SymbolTable s, char k[], struct Entry e) 
+struct SymbolTable symbolTableInsert( struct SymbolTable s, char k[], char t[], float v, int l) 
 {
-    printf("IN insert %s\n", k);
     strcpy(s.keys[s.nextEntryIndex], k);
-    printf("IN insert key %s\n", s.keys[s.nextEntryIndex]);
-    s.values[s.nextEntryIndex] = e;
-    printf("IN insert value %f\n", s.values[s.nextEntryIndex].value);
+    struct Entry newEntry;
+    strcpy(newEntry.type, t);
+    newEntry.value = v;
+    newEntry.line = l;
+    s.values[s.nextEntryIndex] = newEntry;
+    printf("AFTER insert: %s, %s, %f, %d\n", s.keys[s.nextEntryIndex], s.values[s.nextEntryIndex].type, s.values[s.nextEntryIndex].value, s.values[s.nextEntryIndex].line);
     return s;
 }
 
 struct Entry symbolTableGet( struct SymbolTable s, int index ) 
 {
     return s.values[index];
+}
+
+struct SymbolTable symbolTableUpdate( struct SymbolTable s, int index, char t[], float v, int l) 
+{
+    strcpy(s.values[index].type, t);
+    s.values[index].value = v;
+    s.values[index].line = l;
+    printf("AFTER update: %s, %s, %f, %d\n", s.keys[index], s.values[index].type, s.values[index].value, s.values[index].line);
+    return s;
 }
 
 int symbolTableContains( struct SymbolTable s, char k[] ) 

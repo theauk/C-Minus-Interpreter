@@ -527,7 +527,7 @@ void lex_err(char*, char*);         /* Lexical error reporting */
 void get_err_pos();                 /* Used to get the correct column position for id and number errors */
 enum ERROR_TYPE {ID_ERR, NUM_ERR};  /* Enum used to differentiate between ID and NUM error */
 
-void yyerror(char const *s)         /* Parsing error function */
+void yyerror(char const *s)         /* Error function */
 {
     fprintf(stderr, "Ln %d, Col %d: %s\n", line, pos, s);
     exit(1); /* Terminates when encountering a syntax error */

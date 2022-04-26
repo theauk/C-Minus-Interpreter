@@ -114,9 +114,11 @@ typedef union YYSTYPE
     char *str;
     char *operator;
     char *IO;
+    char *varType;
+    char *statement;
 }
 /* Line 1529 of yacc.c.  */
-#line 120 "y.tab.h"
+#line 122 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
