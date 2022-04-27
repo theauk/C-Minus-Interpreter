@@ -4,7 +4,6 @@
     #include <string.h>
     #include <stdbool.h>            // Allows bool type usage
     #include "printer.h"            // Used to print symbol table
-    #include "stack.h"
     
     int yylex();                    // Built-in function that recognizes input stream tokens and returns them to the parser
     void yyerror(char const *s);    // Function used for error messages
@@ -21,13 +20,7 @@
     void writeInput(char id[]);
 
     struct SymbolTable s; // Symbol table structure from symbolTable.h
-    struct Stack stack;
-    bool currentIf;
-    bool inIf;
     int lastVarArrayIndex;
-
-    bool execute;
-    bool first = 1;
 %}
 
 // Types for tokens
@@ -136,67 +129,33 @@ param:
   }
   ;
 
-compoundStmt: LCURLY statementList RCURLY {printf("COMP DEEPER\n");};
+compoundStmt: LCURLY statementList RCURLY;
 
-statementList: statement statementList {printf("STMPLIST\n");} | /* epsilon */;
+statementList: statement statementList | /* epsilon */;
 
-statement: assignmentStmt | compoundStmt {printf("COMP\n"); } | selectionStmt | iterationStmt | ioStmt ;
+statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStmt ;
 
 selectionStmt: 
       ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER 
-      { 
-        printf("END IF\n"); inIf = 0; 
-      } 
       | ifStmt LPAREN boolExpression RPAREN statement elseStmt statement 
-      { 
-        printf("END IF\n"); inIf = 0; 
-        }
       ;
 
-ifStmt: IF 
-      { 
-        printf("IF FOUND\n"); 
-        currentIf = 1; 
-        inIf = 1; 
-      }
-      ;
+ifStmt: IF;
 
-elseStmt: ELSE 
-      { 
-        printf("ELSE FOUND\n"); inIf = 0; 
-        execute = !execute;
-        printf("EXECUTE %d\n", execute);
-      };
+elseStmt: ELSE;
 
 iterationStmt: 
       WHILE LPAREN boolExpression RPAREN statement
-      //{ stack = pop(stack); }
       ;
 
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
       {
-        
-          printf("ASSIGN\n");
-        if (execute == 1) {
-          printf("ASSIGN VAR %s %f\n", $1, $3);
-            assignmentSimple($1, $3);     
-          } 
-          /* Perform non-array assignment */
-        //stack = pop(stack);
-        
+        assignmentSimple($1, $3);     
       }
       | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
       {
-
-        
-        if (execute == 1) {
-          printf("ASSIGN VAR[] %s %f\n", $1, $6);          
-          assignmentArray($1, $3, $6);
-        } 
-        
-        /* Perform array assignment */
-        
+        assignmentArray($1, $3, $6);
       }
       ;
 
@@ -220,17 +179,7 @@ boolExpression:
       additiveExpression relop additiveExpression
       {
         
-        printf("BOOL EXP %f %s %f\n", $1, $2, $3);
         $$ = getBoolExp($2, $1, $3); 
-        if (inIf && first) {
-          first = 0;
-          execute = $$; 
-        }
-        //execute = $$ == 0 ? 0 : 1;
-        //execute = $$;
-        printf("EXECUTE DOL %d\n", $$);
-        printf("EXECUTE %d\n", execute);
-        
         /* Get the boolean value for the relop expression */
       }
       ;
@@ -267,11 +216,11 @@ factor:
   ;
 
 ioStmt: 
-      WRITE var ioWriteTail { if(execute == 1) writeInput($2); } 
+      WRITE var ioWriteTail { writeInput($2); } 
       ;
 
 ioWriteTail: 
-      COMMA var ioWriteTail { if(execute == 1) writeInput($2); }
+      COMMA var ioWriteTail { writeInput($2); }
       | /* epsilon */ 
       ;
 
@@ -435,8 +384,6 @@ void writeInput(char id[]) {
 }
 
 int main(void) {
-    printf("\n");
-    stack = initStack(stack);
     yyparse();
     printf("no syntax errors found while parsing\n");
     printSymbolTable(s);
