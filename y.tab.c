@@ -158,10 +158,7 @@
 
     struct SymbolTable s; // Symbol table structure from symbolTable.h
     struct Stack stack;
-    int extraLine;
     bool currentIf;
-
-    int yydebug = 1;
 
 
 /* Enabling traces.  */
@@ -184,7 +181,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 33 "parser.y"
+#line 30 "parser.y"
 {
     int number;
     float floating;
@@ -196,7 +193,7 @@ typedef union YYSTYPE
     char *IO;
 }
 /* Line 193 of yacc.c.  */
-#line 200 "y.tab.c"
+#line 197 "y.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -209,7 +206,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 213 "y.tab.c"
+#line 210 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -515,12 +512,12 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    90,    90,    93,   100,   100,   102,   102,   105,   109,
-     116,   117,   118,   121,   121,   123,   125,   125,   128,   132,
-     138,   140,   140,   142,   142,   142,   142,   142,   144,   144,
-     146,   148,   151,   159,   169,   180,   180,   183,   204,   204,
-     204,   204,   204,   204,   207,   208,   212,   213,   217,   218,
-     222,   223,   227,   228,   232,   236,   240,   241
+       0,    87,    87,    90,    97,    97,    99,    99,   102,   106,
+     113,   114,   115,   118,   118,   120,   122,   122,   125,   129,
+     135,   137,   137,   139,   139,   139,   139,   139,   141,   141,
+     143,   145,   148,   156,   166,   177,   177,   180,   201,   201,
+     201,   201,   201,   201,   204,   205,   209,   210,   214,   215,
+     219,   220,   224,   225,   229,   233,   237,   238
 };
 #endif
 
@@ -1493,7 +1490,7 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 94 "parser.y"
+#line 91 "parser.y"
     {
     printf("START HELT\n");
     insertProgramEntry((yyvsp[(1) - (5)].varType), (yyvsp[(2) - (5)].str));
@@ -1501,85 +1498,85 @@ yyreduce:
     break;
 
   case 8:
-#line 106 "parser.y"
+#line 103 "parser.y"
     { 
         insertOrUpdateEntry((yyvsp[(1) - (3)].varType), (yyvsp[(2) - (3)].str), 0.0, false, 0); /* Insert value into symbol table */
       }
     break;
 
   case 9:
-#line 110 "parser.y"
+#line 107 "parser.y"
     {  
         insertOrUpdateEntry((yyvsp[(1) - (6)].varType), (yyvsp[(2) - (6)].str), 0.0, true, (yyvsp[(4) - (6)].floating)); /* Insert array into symbol table */
       }
     break;
 
   case 10:
-#line 116 "parser.y"
-    {(yyval.varType) = (yyvsp[(1) - (1)].varType); extraLine = getLine();}
+#line 113 "parser.y"
+    {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
   case 11:
-#line 117 "parser.y"
-    {(yyval.varType) = (yyvsp[(1) - (1)].varType); extraLine = getLine();}
+#line 114 "parser.y"
+    {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
   case 12:
-#line 118 "parser.y"
-    {(yyval.varType) = (yyvsp[(1) - (1)].varType); extraLine = getLine();}
+#line 115 "parser.y"
+    {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
   case 18:
-#line 129 "parser.y"
+#line 126 "parser.y"
     { 
     insertOrUpdateEntry((yyvsp[(1) - (2)].varType), (yyvsp[(2) - (2)].str), 0.0, false, 0); /* Insert parameter into symbol table */
   }
     break;
 
   case 19:
-#line 133 "parser.y"
+#line 130 "parser.y"
     { 
     insertOrUpdateEntry((yyvsp[(1) - (4)].varType), (yyvsp[(2) - (4)].str), 0.0, true, 0); /* Insert array parameter type into symbol table */
   }
     break;
 
   case 20:
-#line 138 "parser.y"
+#line 135 "parser.y"
     { printf("CURLE\n"); }
     break;
 
   case 23:
-#line 142 "parser.y"
+#line 139 "parser.y"
     { printf("staAss\n"); }
     break;
 
   case 24:
-#line 142 "parser.y"
+#line 139 "parser.y"
     { printf("staCom\n"); }
     break;
 
   case 28:
-#line 144 "parser.y"
+#line 141 "parser.y"
     { printf("SHORT\n"); stack = pop(stack); }
     break;
 
   case 29:
-#line 144 "parser.y"
+#line 141 "parser.y"
     { printf("SHORT\n"); stack = pop(stack); }
     break;
 
   case 30:
-#line 146 "parser.y"
+#line 143 "parser.y"
     {currentIf = 1; printf("IF\n");}
     break;
 
   case 31:
-#line 148 "parser.y"
+#line 145 "parser.y"
     {printf("ELSE\n");}
     break;
 
   case 32:
-#line 152 "parser.y"
+#line 149 "parser.y"
     {
         printf("WHILE\n");
         { stack = pop(stack); }
@@ -1587,7 +1584,7 @@ yyreduce:
     break;
 
   case 33:
-#line 160 "parser.y"
+#line 157 "parser.y"
     {
         printf("ID ASSIGNMENT additiveExpression %s %f\n", (yyvsp[(1) - (3)].str), (yyvsp[(3) - (3)].floating));
         printf("K %d\n", stack.top);
@@ -1600,7 +1597,7 @@ yyreduce:
     break;
 
   case 34:
-#line 170 "parser.y"
+#line 167 "parser.y"
     {
         printf("ID ASSIGNMENT additiveExpression RSQUARE ASSIGNMENT additiveExpression\n");
         if (peek(stack) == 1) {
@@ -1612,7 +1609,7 @@ yyreduce:
     break;
 
   case 37:
-#line 184 "parser.y"
+#line 181 "parser.y"
     {
         if (currentIf == 1 && peek(stack) == 0)
         {
@@ -1634,75 +1631,75 @@ yyreduce:
     break;
 
   case 44:
-#line 207 "parser.y"
+#line 204 "parser.y"
     { (yyval.floating) = (yyvsp[(1) - (1)].floating); }
     break;
 
   case 45:
-#line 208 "parser.y"
+#line 205 "parser.y"
     { (yyval.floating) = calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)); }
     break;
 
   case 46:
-#line 212 "parser.y"
+#line 209 "parser.y"
     { (yyval.floating) = (yyvsp[(1) - (1)].floating); }
     break;
 
   case 47:
-#line 213 "parser.y"
+#line 210 "parser.y"
     { (yyval.floating) = calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)); }
     break;
 
   case 48:
-#line 217 "parser.y"
+#line 214 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 49:
-#line 218 "parser.y"
+#line 215 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 50:
-#line 222 "parser.y"
+#line 219 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 51:
-#line 223 "parser.y"
+#line 220 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 52:
-#line 227 "parser.y"
+#line 224 "parser.y"
     { (yyval.floating) = (yyvsp[(2) - (3)].floating);}
     break;
 
   case 53:
-#line 229 "parser.y"
+#line 226 "parser.y"
     { 
     (yyval.floating) = getVar((yyvsp[(1) - (1)].str)); /* Get the variable value from the symbol table */
   }
     break;
 
   case 54:
-#line 232 "parser.y"
+#line 229 "parser.y"
     { (yyval.floating) = yylval.floating; }
     break;
 
   case 55:
-#line 236 "parser.y"
+#line 233 "parser.y"
     { writeInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 56:
-#line 240 "parser.y"
+#line 237 "parser.y"
     { writeInput((yyvsp[(2) - (3)].str)); }
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1706 "y.tab.c"
+#line 1703 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1916,204 +1913,165 @@ yyreturn:
 }
 
 
-#line 244 "parser.y"
+#line 241 "parser.y"
 
 #include "lex.yy.c" // Using Lex and yacc together
 
-void insertProgramEntry(char type[], char key[])
-{
+void insertProgramEntry(char type[], char key[]) {
     s = symbolTableInsert(s, key, "program", 0, 0.0, line, 0);
     s.nextEntryIndex = s.nextEntryIndex + 1;
 }
 
 /*
-  Checks if a key is already in the symbol table. 
+  Checks if a key is already in the symbol table.
   If yes, updates the entry. Otherwise, creates a new entry.
 */
-void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize)
-{
-  int containsIndex = symbolTableContains(s, key);
-  if (containsIndex == -1) 
-  {
-    s = symbolTableInsert(s, key, type, isArr, val, line, arrSize);
-    s.nextEntryIndex = s.nextEntryIndex + 1;
-  } 
-  else 
-  {
-    s = symbolTableUpdate(s, containsIndex, type, isArr, val, line, arrSize);
-  }
+void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize) {
+    int containsIndex = symbolTableContains(s, key);
+    if (containsIndex == -1) {
+        s = symbolTableInsert(s, key, type, isArr, val, line, arrSize);
+        s.nextEntryIndex = s.nextEntryIndex + 1;
+    } else {
+        s = symbolTableUpdate(s, containsIndex, type, isArr, val, line, arrSize);
+    }
 }
 
 /*
   Checks if an expression has to be a float value.
 */
-char * getExpType(float exp)
-{
-    int truncated = (int)exp;
-    if (exp == truncated)
-    {
-      return "int";
-    } 
-    else 
-    {
-      return "float";
+char *getExpType(float exp) {
+    int truncated = (int) exp;
+    if (exp == truncated) {
+        return "int";
+    } else {
+        return "float";
     }
 }
 
 /*
-  Computes arithmetric expressions for two numbers. 
+  Computes arithmetic expressions for two numbers.
 */
-float calculate(char op[], float num1, float num2)
-{
-  if (strcmp(op, "*") == 0)
-  {
-    return num1 * num2;
-  }
-  else if (strcmp(op, "/") == 0)
-  {
-    return num1 / num2;
-  }
-  else if (strcmp(op, "+") == 0)
-  {
-    return num1 + num2;
-  }
-  else
-  {
-    return num1 - num2;
-  }
+float calculate(char op[], float num1, float num2) {
+    if (strcmp(op, "*") == 0) {
+        return num1 * num2;
+    } else if (strcmp(op, "/") == 0) {
+        return num1 / num2;
+    } else if (strcmp(op, "+") == 0) {
+        return num1 + num2;
+    } else {
+        return num1 - num2;
+    }
 }
 
 /*
-  Gets the boolean value for comparison between two numbers. 
+  Gets the boolean value for comparison between two numbers.
 */
-bool getBoolExp(char op[], float num1, float num2) 
-{
-  if (strcmp("==", op) == 0) return num1 == num2;
-  else if (strcmp("!=", op) == 0) return num1 != num2;
-  else if (strcmp("<", op) == 0) return num1 < num2;
-  else if (strcmp("<=", op) == 0) return num1 <= num2;
-  else if (strcmp(">", op) == 0) return num1 > num2;
-  else if (strcmp(">=", op) == 0) return num1 >= num2;
-  else 
-  {
-    interpreterError("operator is not correct", "");
-    return false;
-  }
+bool getBoolExp(char op[], float num1, float num2) {
+    if (strcmp("==", op) == 0) return num1 == num2;
+    else if (strcmp("!=", op) == 0) return num1 != num2;
+    else if (strcmp("<", op) == 0) return num1 < num2;
+    else if (strcmp("<=", op) == 0) return num1 <= num2;
+    else if (strcmp(">", op) == 0) return num1 > num2;
+    else if (strcmp(">=", op) == 0) return num1 >= num2;
+    else {
+        interpreterError("operator is not correct", "");
+        return false;
+    }
 }
 
 /*
-  Checks if a variable is declared. If yes, returns it. 
+  Checks if a variable is declared. If yes, returns it.
 */
-float getVar(char var[]) 
-{
+float getVar(char var[]) {
     int containsIndex = symbolTableContains(s, var);
-    if (containsIndex == -1)
-    {
-      interpreterError("variable not declared", var);
+    if (containsIndex == -1) {
+        interpreterError("variable not declared", var);
     }
     return symbolTableGet(s, containsIndex).value;
 }
 
 /*
-  Performs assignment for non-array variables. 
+  Performs assignment for non-array variables.
 */
-void assignmentSimple(char key[], float val)
-{
-  int containsIndex = symbolTableContains(s, key);
-  if (containsIndex == -1) // Check if variable is in symbol table
-  {
-    interpreterError("variable not declared", key);
-  } 
-  else
-  {
-    struct Entry match = symbolTableGet(s, containsIndex);
-    if (match.isArray) // Check if there is invalid array assignment to non-array variable
+void assignmentSimple(char key[], float val) {
+    int containsIndex = symbolTableContains(s, key);
+    if (containsIndex == -1) // Check if variable is in symbol table
     {
-      interpreterError("assignment to expression with array type", "");
+        interpreterError("variable not declared", key);
+    } else {
+        struct Entry match = symbolTableGet(s, containsIndex);
+        if (match.isArray) // Check if there is invalid array assignment to non-array variable
+        {
+            interpreterError("assignment to expression with array type", "");
+        } else if ((strcmp(getExpType(val), "float") == 0) &&
+                   (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
+        {
+            interpreterError("type mismatch", "float and int");
+        } else // Update symbol table with new values
+        {
+            s = symbolTableUpdate(s, containsIndex, match.type, match.isArray, val, match.line, match.arraySize);
+        }
     }
-    else if ((strcmp(getExpType(val), "float") == 0) && (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
-    {
-      interpreterError("type mismatch", "float and int");
-    }
-    else // Update symbol table with new values
-    {
-      s = symbolTableUpdate(s, containsIndex, match.type, match.isArray, val, match.line, match.arraySize);
-    } 
-  }
 }
 
 /*
   Performs assignment for array variables.
 */
-void assignmentArray(char key[], float index, float val)
-{
-  int containsIndex = symbolTableContains(s, key);
-  if (containsIndex == -1) // Check if variable is in symbol table
-  {
-    interpreterError("variable not declared", key);
-  } 
-  else
-  {
-    struct Entry match = symbolTableGet(s, containsIndex);
-    if (!match.isArray) // Check if there is invalid non-array assignment to array variable
+void assignmentArray(char key[], float index, float val) {
+    int containsIndex = symbolTableContains(s, key);
+    if (containsIndex == -1) // Check if variable is in symbol table
     {
-      interpreterError("is not an array so cannnot assign value", key);
-    } 
-    else if ((strcmp(getExpType(index), "float") == 0)) // Check if array subscript is an integer
-    {
-      interpreterError("array subscript is not an integer", ""); 
+        interpreterError("variable not declared", key);
+    } else {
+        struct Entry match = symbolTableGet(s, containsIndex);
+        if (!match.isArray) // Check if there is invalid non-array assignment to array variable
+        {
+            interpreterError("is not an array so cannnot assign value", key);
+        } else if ((strcmp(getExpType(index), "float") == 0)) // Check if array subscript is an integer
+        {
+            interpreterError("array subscript is not an integer", "");
+        } else if ((strcmp(getExpType(val), "float") == 0) &&
+                   (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
+        {
+            interpreterError("type mismatch", "float and int");
+        } else // Update symbol table with new values
+        {
+            s = symbolTableUpdateArray(s, containsIndex, index, val);
+        }
     }
-    else if ((strcmp(getExpType(val), "float") == 0) && (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
-    {
-      interpreterError("type mismatch", "float and int");
-    }
-    else // Update symbol table with new values
-    {
-      s = symbolTableUpdateArray(s, containsIndex, index, val);
-    } 
-  }
 }
 
-int getLine() 
-{
-  return line;
+int getLine() {
+    return line;
 }
 
 /*
-  Prints out interpretation errors. 
+  Prints out interpretation errors.
 */
-void interpreterError(char error[], char val[])
-{
-  printf("Ln %d: %s %s", line - 1, val, error);
-  exit(1); /* Terminates when encountering a semantic error */
+void interpreterError(char error[], char val[]) {
+    printf("Ln %d: %s %s", line - 1, val, error);
+    exit(1); /* Terminates when encountering a semantic error */
 }
 
-void writeInput(char id[])
-{
-  int containsIndex = symbolTableContains(s, id);
-  if (containsIndex == -1) // Check if variable is in symbol table
-  {
-    interpreterError("variable not declared", id);
-  } 
-  else 
-  {
-    struct Entry e = symbolTableGet(s, containsIndex);
-    printf("\nWrite for %s\n", id);
-    if (e.isArray)
+void writeInput(char id[]) {
+    int containsIndex = symbolTableContains(s, id);
+    if (containsIndex == -1) // Check if variable is in symbol table
     {
-      printArray(id, e);
+        interpreterError("variable not declared", id);
+    } else {
+        struct Entry e = symbolTableGet(s, containsIndex);
+        printf("\nWrite for %s\n", id);
+        if (e.isArray) {
+            printArray(id, e);
+        } else {
+            printNonArray(id, e);
+        }
     }
-    else
-    {
-      printNonArray(id, e);
-    }
-  }
 }
-                                                                              
-int main(void) 
-{     
-  stack = initStack(stack);
-  yyparse();
-  printf("\nno syntax errors found while parsing\n");
-  printSymbolTable(s);
+
+int main(void) {
+    stack = initStack(stack);
+    yyparse();
+    printf("\nno syntax errors found while parsing\n");
+    printSymbolTable(s);
 }

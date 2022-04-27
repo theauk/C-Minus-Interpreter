@@ -1,18 +1,20 @@
-/* This is a program without syntax errors 
-but with lexical errors */
+/* This is a program with nested conditionals */
 int test (void) {
     int l;
     int r;
+    int z[4];
     {
+        z = 2
         if(2 == 2) 
         
-            if (5 == 5)
-                r = 2
+            if (5 != 5)
+                {r = 2}
             else 
-                r = 9
+                if (8 < 9)
+                    r = 1
         
         else {l = 4} 
 
-        
+        l = 5 + 9
     }
 }

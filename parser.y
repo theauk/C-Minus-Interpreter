@@ -23,10 +23,7 @@
 
     struct SymbolTable s; // Symbol table structure from symbolTable.h
     struct Stack stack;
-    int extraLine;
     bool currentIf;
-
-    int yydebug = 1;
 %}
 
 // Types for tokens
@@ -113,9 +110,9 @@ varDeclaration:
       ;
 
 typeSpecifier: 
-      INT {$$ = $1; extraLine = getLine();}
-      | FLOAT {$$ = $1; extraLine = getLine();}
-      | VOID {$$ = $1; extraLine = getLine();}
+      INT {$$ = $1;}
+      | FLOAT {$$ = $1;}
+      | VOID {$$ = $1;}
       ;
 
 params: paramList | VOID; 
@@ -329,7 +326,7 @@ void assignmentSimple(char key[], float val) {
         struct Entry match = symbolTableGet(s, containsIndex);
         if (match.isArray) // Check if there is invalid array assignment to non-array variable
         {
-            interpreterError("assignment to expression with array type", "");
+            interpreterError("wrong assignment to array type variable", "");
         } else if ((strcmp(getExpType(val), "float") == 0) &&
                    (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
         {

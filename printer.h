@@ -57,4 +57,3 @@ void printArray(char key[], struct Entry e) {
         printf("]\n");
     }
 }
-

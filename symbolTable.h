@@ -2,18 +2,21 @@
 #include <stdio.h>
 #include <string.h>
 
+const int TYPESIZE = 10;
+const int ENTRYARRAYSIZE = 50;
+const int TABLESIZE = 50;
 struct Entry {
-    char type[10];
+    char type[TYPESIZE];
     bool isArray;
     int arraySize;
     float value;
     int line;
-    float array[100];
+    float array[ENTRYARRAYSIZE];
 };
 
 struct SymbolTable {
-    char keys[50][50];
-    struct Entry values[50];
+    char keys[TABLESIZE][TABLESIZE];
+    struct Entry values[TABLESIZE];
     int nextEntryIndex;
 };
 
