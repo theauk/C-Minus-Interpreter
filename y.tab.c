@@ -141,6 +141,8 @@
     #include <string.h>
     #include <stdbool.h>                /* Allows bool type usage */
     #include "symbolTable.h"
+    #include "queue.h"
+
     int yylex();                    // Built-in function that recognizes input stream tokens and returns them to the parser
     void yyerror(char const *s);    // Function used for error messages
     void readInput(char id[]);
@@ -156,7 +158,9 @@
     void assignmentSimple(char key[], float val);
     void assignmentArray(char key[], float index, float val);
     float getVar(char var[]);
+    
     struct SymbolTable s;
+    struct Queue q;
 
 
 /* Enabling traces.  */
@@ -179,7 +183,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 25 "parser.y"
+#line 29 "parser.y"
 {
     int number;
     float floating;
@@ -191,7 +195,7 @@ typedef union YYSTYPE
     bool boolExp;
 }
 /* Line 193 of yacc.c.  */
-#line 195 "y.tab.c"
+#line 199 "y.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -204,7 +208,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 208 "y.tab.c"
+#line 212 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -510,12 +514,12 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    82,    82,    84,    84,    86,    86,    89,    93,   100,
-     101,   102,   105,   105,   107,   109,   109,   112,   116,   122,
-     124,   124,   126,   126,   126,   126,   126,   130,   130,   133,
-     144,   148,   155,   160,   165,   173,   173,   173,   173,   173,
-     173,   176,   177,   181,   182,   186,   187,   191,   192,   196,
-     197,   201,   205,   206,   210,   211,   215,   216
+       0,    86,    86,    88,    88,    90,    90,    93,    97,   104,
+     105,   106,   109,   109,   111,   113,   113,   116,   120,   126,
+     128,   128,   130,   130,   130,   130,   130,   132,   132,   135,
+     146,   150,   157,   162,   167,   175,   175,   175,   175,   175,
+     175,   178,   179,   183,   184,   188,   189,   193,   194,   198,
+     199,   203,   207,   208,   212,   213,   217,   218
 };
 #endif
 
@@ -1490,50 +1494,50 @@ yyreduce:
   switch (yyn)
     {
         case 7:
-#line 90 "parser.y"
+#line 94 "parser.y"
     { 
         insertOrUpdateEntry((yyvsp[(1) - (3)].varType), (yyvsp[(2) - (3)].str), 0.0, false, 0); /* Insert value into symbol table */
       }
     break;
 
   case 8:
-#line 94 "parser.y"
+#line 98 "parser.y"
     {  
         insertOrUpdateEntry((yyvsp[(1) - (6)].varType), (yyvsp[(2) - (6)].str), 0.0, true, (yyvsp[(4) - (6)].floating)); /* Insert array into symbol table */
       }
     break;
 
   case 9:
-#line 100 "parser.y"
+#line 104 "parser.y"
     {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
   case 10:
-#line 101 "parser.y"
+#line 105 "parser.y"
     {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
   case 11:
-#line 102 "parser.y"
+#line 106 "parser.y"
     {(yyval.varType) = (yyvsp[(1) - (1)].varType);}
     break;
 
   case 17:
-#line 113 "parser.y"
+#line 117 "parser.y"
     { 
     insertOrUpdateEntry((yyvsp[(1) - (2)].varType), (yyvsp[(2) - (2)].str), 0.0, false, 0); /* NOTE: NEED TO READ */
   }
     break;
 
   case 18:
-#line 117 "parser.y"
+#line 121 "parser.y"
     { 
     insertOrUpdateEntry((yyvsp[(1) - (4)].varType), (yyvsp[(2) - (4)].str), 0.0, true, 0); /* NOTE: NEED TO READ */
   }
     break;
 
   case 29:
-#line 134 "parser.y"
+#line 136 "parser.y"
     {
         printf("%s\n", (yyvsp[(5) - (5)].str));
         if ((yyvsp[(3) - (5)].boolExp) == 0)
@@ -1544,21 +1548,21 @@ yyreduce:
     break;
 
   case 30:
-#line 145 "parser.y"
+#line 147 "parser.y"
     {
         assignmentSimple((yyvsp[(1) - (3)].str), (yyvsp[(3) - (3)].floating));
       }
     break;
 
   case 31:
-#line 149 "parser.y"
+#line 151 "parser.y"
     {
         assignmentArray((yyvsp[(1) - (6)].str), (yyvsp[(3) - (6)].floating), (yyvsp[(6) - (6)].floating));
       }
     break;
 
   case 32:
-#line 156 "parser.y"
+#line 158 "parser.y"
     { 
         printf("var ID %s\n", (yyvsp[(1) - (1)].str)); /* NOTE DELETE */
         
@@ -1566,12 +1570,12 @@ yyreduce:
     break;
 
   case 33:
-#line 161 "parser.y"
+#line 163 "parser.y"
     { printf("var ID [] %f\n", (yyvsp[(3) - (4)].floating)); }
     break;
 
   case 34:
-#line 166 "parser.y"
+#line 168 "parser.y"
     {
         printf("BOOLEXP %f, %s, %f\n", (yyvsp[(1) - (3)].floating), (yyvsp[(2) - (3)].operator), (yyvsp[(3) - (3)].floating));
         printf("BOOL RES %d\n", getBoolExp((yyvsp[(2) - (3)].operator), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)));
@@ -1580,85 +1584,85 @@ yyreduce:
     break;
 
   case 41:
-#line 176 "parser.y"
+#line 178 "parser.y"
     { (yyval.floating) = (yyvsp[(1) - (1)].floating); }
     break;
 
   case 42:
-#line 177 "parser.y"
+#line 179 "parser.y"
     { printf("calc %f\n", calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating))); (yyval.floating) = calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)); }
     break;
 
   case 43:
-#line 181 "parser.y"
+#line 183 "parser.y"
     { (yyval.floating) = (yyvsp[(1) - (1)].floating); }
     break;
 
   case 44:
-#line 182 "parser.y"
+#line 184 "parser.y"
     { printf("calc %f\n", calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating))); (yyval.floating) = calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)); }
     break;
 
   case 45:
-#line 186 "parser.y"
+#line 188 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 46:
-#line 187 "parser.y"
+#line 189 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 47:
-#line 191 "parser.y"
+#line 193 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 48:
-#line 192 "parser.y"
+#line 194 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 49:
-#line 196 "parser.y"
+#line 198 "parser.y"
     { (yyval.floating) = (yyvsp[(2) - (3)].floating); printf("factor add %f\n", (yyvsp[(2) - (3)].floating));}
     break;
 
   case 50:
-#line 198 "parser.y"
+#line 200 "parser.y"
     { 
     (yyval.floating) = getVar((yyvsp[(1) - (1)].str));
   }
     break;
 
   case 51:
-#line 201 "parser.y"
+#line 203 "parser.y"
     { printf("factor NUM %f\n", yylval.floating); (yyval.floating) = yylval.floating; }
     break;
 
   case 52:
-#line 205 "parser.y"
+#line 207 "parser.y"
     { readInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 53:
-#line 206 "parser.y"
+#line 208 "parser.y"
     { writeInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 54:
-#line 210 "parser.y"
+#line 212 "parser.y"
     { readInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 56:
-#line 215 "parser.y"
+#line 217 "parser.y"
     { writeInput((yyvsp[(2) - (3)].str)); }
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1662 "y.tab.c"
+#line 1666 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1872,7 +1876,7 @@ yyreturn:
 }
 
 
-#line 219 "parser.y"
+#line 221 "parser.y"
 
 #include "lex.yy.c" // Using Lex and yacc together
 

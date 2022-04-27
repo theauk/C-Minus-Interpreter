@@ -1,0 +1,1190 @@
+Grammar
+
+    0 $accept: program $end
+
+    1 program: typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY
+
+    2 declarationList: varDeclaration declarationListTail
+    3                | ioStmt
+
+    4 declarationListTail: varDeclaration declarationListTail
+    5                    | /* empty */
+
+    6 varDeclaration: typeSpecifier ID SEMICOLON
+    7               | typeSpecifier ID LSQUARE NUM RSQUARE SEMICOLON
+
+    8 typeSpecifier: INT
+    9              | FLOAT
+   10              | VOID
+
+   11 params: paramList
+   12       | VOID
+
+   13 paramList: param paramListTail
+
+   14 paramListTail: COMMA param paramListTail
+   15              | /* empty */
+
+   16 param: typeSpecifier ID
+   17      | typeSpecifier ID LSQUARE RSQUARE
+
+   18 compoundStmt: LCURLY statementList RCURLY
+
+   19 statementList: statement statementList
+   20              | /* empty */
+
+   21 statement: assignmentStmt
+   22          | compoundStmt
+   23          | selectionStmt
+   24          | iterationStmt
+   25          | ioStmt
+
+   26 selectionStmt: IF LPAREN boolExpression RPAREN statement
+   27              | IF LPAREN boolExpression RPAREN statement ELSE statement
+
+   28 iterationStmt: WHILE LPAREN boolExpression RPAREN statement
+
+   29 assignmentStmt: ID ASSIGNMENT additiveExpression
+   30               | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
+
+   31 var: ID
+   32    | ID LSQUARE additiveExpression RSQUARE
+
+   33 boolExpression: additiveExpression relop additiveExpression
+
+   34 relop: LESS_OR_EQUAL
+   35      | LESS_THAN
+   36      | GREATER_THAN
+   37      | GREATER_OR_EQUAL
+   38      | EQUALS
+   39      | NOT_EQUALS
+
+   40 additiveExpression: term
+   41                   | term addop additiveExpression
+
+   42 term: factor
+   43     | factor mulop term
+
+   44 addop: PLUS
+   45      | MINUS
+
+   46 mulop: MULTIPLY
+   47      | DIVIDE
+
+   48 factor: LPAREN additiveExpression RPAREN
+   49       | var
+   50       | NUM
+
+   51 ioStmt: READ ID ioReadTail
+   52       | WRITE ID ioWriteTail
+
+   53 ioReadTail: COMMA ID ioReadTail
+   54           | SEMICOLON
+
+   55 ioWriteTail: COMMA ID ioWriteTail
+   56            | SEMICOLON
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+READ (258) 51
+WRITE (259) 52
+ELSE (260) 27
+IF (261) 26 27
+INT (262) 8
+FLOAT (263) 9
+VOID (264) 10 12
+WHILE (265) 28
+PLUS (266) 44
+MINUS (267) 45
+MULTIPLY (268) 46
+DIVIDE (269) 47
+EQUALS (270) 38
+NOT_EQUALS (271) 39
+LESS_THAN (272) 35
+LESS_OR_EQUAL (273) 34
+GREATER_THAN (274) 36
+GREATER_OR_EQUAL (275) 37
+ASSIGNMENT (276) 29 30
+COMMA (277) 14 53 55
+SEMICOLON (278) 6 7 54 56
+LPAREN (279) 1 26 27 28 48
+RPAREN (280) 1 26 27 28 48
+LSQUARE (281) 7 17 30 32
+RSQUARE (282) 7 17 30 32
+LCURLY (283) 1 18
+RCURLY (284) 1 18
+ID (285) 1 6 7 16 17 29 30 31 32 51 52 53 55
+NUM (286) 7 50
+IF_LOWER (287)
+
+
+Nonterminals, with rules where they appear
+
+$accept (33)
+    on left: 0
+program (34)
+    on left: 1, on right: 0
+declarationList (35)
+    on left: 2 3, on right: 1
+declarationListTail (36)
+    on left: 4 5, on right: 2 4
+varDeclaration (37)
+    on left: 6 7, on right: 2 4
+typeSpecifier (38)
+    on left: 8 9 10, on right: 1 6 7 16 17
+params (39)
+    on left: 11 12, on right: 1
+paramList (40)
+    on left: 13, on right: 11
+paramListTail (41)
+    on left: 14 15, on right: 13 14
+param (42)
+    on left: 16 17, on right: 13 14
+compoundStmt (43)
+    on left: 18, on right: 1 22
+statementList (44)
+    on left: 19 20, on right: 18 19
+statement (45)
+    on left: 21 22 23 24 25, on right: 19 26 27 28
+selectionStmt (46)
+    on left: 26 27, on right: 23
+iterationStmt (47)
+    on left: 28, on right: 24
+assignmentStmt (48)
+    on left: 29 30, on right: 21
+var (49)
+    on left: 31 32, on right: 49
+boolExpression (50)
+    on left: 33, on right: 26 27 28
+relop (51)
+    on left: 34 35 36 37 38 39, on right: 33
+additiveExpression (52)
+    on left: 40 41, on right: 29 30 32 33 41 48
+term (53)
+    on left: 42 43, on right: 40 41 43
+addop (54)
+    on left: 44 45, on right: 41
+mulop (55)
+    on left: 46 47, on right: 43
+factor (56)
+    on left: 48 49 50, on right: 42 43
+ioStmt (57)
+    on left: 51 52, on right: 3 25
+ioReadTail (58)
+    on left: 53 54, on right: 51 53
+ioWriteTail (59)
+    on left: 55 56, on right: 52 55
+
+
+state 0
+
+    0 $accept: . program $end
+
+    INT    shift, and go to state 1
+    FLOAT  shift, and go to state 2
+    VOID   shift, and go to state 3
+
+    program        go to state 4
+    typeSpecifier  go to state 5
+
+
+state 1
+
+    8 typeSpecifier: INT .
+
+    $default  reduce using rule 8 (typeSpecifier)
+
+
+state 2
+
+    9 typeSpecifier: FLOAT .
+
+    $default  reduce using rule 9 (typeSpecifier)
+
+
+state 3
+
+   10 typeSpecifier: VOID .
+
+    $default  reduce using rule 10 (typeSpecifier)
+
+
+state 4
+
+    0 $accept: program . $end
+
+    $end  shift, and go to state 6
+
+
+state 5
+
+    1 program: typeSpecifier . ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY
+
+    ID  shift, and go to state 7
+
+
+state 6
+
+    0 $accept: program $end .
+
+    $default  accept
+
+
+state 7
+
+    1 program: typeSpecifier ID . LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY
+
+    LPAREN  shift, and go to state 8
+
+
+state 8
+
+    1 program: typeSpecifier ID LPAREN . params RPAREN LCURLY declarationList compoundStmt RCURLY
+
+    INT    shift, and go to state 1
+    FLOAT  shift, and go to state 2
+    VOID   shift, and go to state 9
+
+    typeSpecifier  go to state 10
+    params         go to state 11
+    paramList      go to state 12
+    param          go to state 13
+
+
+state 9
+
+   10 typeSpecifier: VOID .
+   12 params: VOID .
+
+    RPAREN    reduce using rule 12 (params)
+    $default  reduce using rule 10 (typeSpecifier)
+
+
+state 10
+
+   16 param: typeSpecifier . ID
+   17      | typeSpecifier . ID LSQUARE RSQUARE
+
+    ID  shift, and go to state 14
+
+
+state 11
+
+    1 program: typeSpecifier ID LPAREN params . RPAREN LCURLY declarationList compoundStmt RCURLY
+
+    RPAREN  shift, and go to state 15
+
+
+state 12
+
+   11 params: paramList .
+
+    $default  reduce using rule 11 (params)
+
+
+state 13
+
+   13 paramList: param . paramListTail
+
+    COMMA  shift, and go to state 16
+
+    $default  reduce using rule 15 (paramListTail)
+
+    paramListTail  go to state 17
+
+
+state 14
+
+   16 param: typeSpecifier ID .
+   17      | typeSpecifier ID . LSQUARE RSQUARE
+
+    LSQUARE  shift, and go to state 18
+
+    $default  reduce using rule 16 (param)
+
+
+state 15
+
+    1 program: typeSpecifier ID LPAREN params RPAREN . LCURLY declarationList compoundStmt RCURLY
+
+    LCURLY  shift, and go to state 19
+
+
+state 16
+
+   14 paramListTail: COMMA . param paramListTail
+
+    INT    shift, and go to state 1
+    FLOAT  shift, and go to state 2
+    VOID   shift, and go to state 3
+
+    typeSpecifier  go to state 10
+    param          go to state 20
+
+
+state 17
+
+   13 paramList: param paramListTail .
+
+    $default  reduce using rule 13 (paramList)
+
+
+state 18
+
+   17 param: typeSpecifier ID LSQUARE . RSQUARE
+
+    RSQUARE  shift, and go to state 21
+
+
+state 19
+
+    1 program: typeSpecifier ID LPAREN params RPAREN LCURLY . declarationList compoundStmt RCURLY
+
+    READ   shift, and go to state 22
+    WRITE  shift, and go to state 23
+    INT    shift, and go to state 1
+    FLOAT  shift, and go to state 2
+    VOID   shift, and go to state 3
+
+    declarationList  go to state 24
+    varDeclaration   go to state 25
+    typeSpecifier    go to state 26
+    ioStmt           go to state 27
+
+
+state 20
+
+   14 paramListTail: COMMA param . paramListTail
+
+    COMMA  shift, and go to state 16
+
+    $default  reduce using rule 15 (paramListTail)
+
+    paramListTail  go to state 28
+
+
+state 21
+
+   17 param: typeSpecifier ID LSQUARE RSQUARE .
+
+    $default  reduce using rule 17 (param)
+
+
+state 22
+
+   51 ioStmt: READ . ID ioReadTail
+
+    ID  shift, and go to state 29
+
+
+state 23
+
+   52 ioStmt: WRITE . ID ioWriteTail
+
+    ID  shift, and go to state 30
+
+
+state 24
+
+    1 program: typeSpecifier ID LPAREN params RPAREN LCURLY declarationList . compoundStmt RCURLY
+
+    LCURLY  shift, and go to state 31
+
+    compoundStmt  go to state 32
+
+
+state 25
+
+    2 declarationList: varDeclaration . declarationListTail
+
+    INT    shift, and go to state 1
+    FLOAT  shift, and go to state 2
+    VOID   shift, and go to state 3
+
+    $default  reduce using rule 5 (declarationListTail)
+
+    declarationListTail  go to state 33
+    varDeclaration       go to state 34
+    typeSpecifier        go to state 26
+
+
+state 26
+
+    6 varDeclaration: typeSpecifier . ID SEMICOLON
+    7               | typeSpecifier . ID LSQUARE NUM RSQUARE SEMICOLON
+
+    ID  shift, and go to state 35
+
+
+state 27
+
+    3 declarationList: ioStmt .
+
+    $default  reduce using rule 3 (declarationList)
+
+
+state 28
+
+   14 paramListTail: COMMA param paramListTail .
+
+    $default  reduce using rule 14 (paramListTail)
+
+
+state 29
+
+   51 ioStmt: READ ID . ioReadTail
+
+    COMMA      shift, and go to state 36
+    SEMICOLON  shift, and go to state 37
+
+    ioReadTail  go to state 38
+
+
+state 30
+
+   52 ioStmt: WRITE ID . ioWriteTail
+
+    COMMA      shift, and go to state 39
+    SEMICOLON  shift, and go to state 40
+
+    ioWriteTail  go to state 41
+
+
+state 31
+
+   18 compoundStmt: LCURLY . statementList RCURLY
+
+    READ    shift, and go to state 22
+    WRITE   shift, and go to state 23
+    IF      shift, and go to state 42
+    WHILE   shift, and go to state 43
+    LCURLY  shift, and go to state 31
+    ID      shift, and go to state 44
+
+    $default  reduce using rule 20 (statementList)
+
+    compoundStmt    go to state 45
+    statementList   go to state 46
+    statement       go to state 47
+    selectionStmt   go to state 48
+    iterationStmt   go to state 49
+    assignmentStmt  go to state 50
+    ioStmt          go to state 51
+
+
+state 32
+
+    1 program: typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt . RCURLY
+
+    RCURLY  shift, and go to state 52
+
+
+state 33
+
+    2 declarationList: varDeclaration declarationListTail .
+
+    $default  reduce using rule 2 (declarationList)
+
+
+state 34
+
+    4 declarationListTail: varDeclaration . declarationListTail
+
+    INT    shift, and go to state 1
+    FLOAT  shift, and go to state 2
+    VOID   shift, and go to state 3
+
+    $default  reduce using rule 5 (declarationListTail)
+
+    declarationListTail  go to state 53
+    varDeclaration       go to state 34
+    typeSpecifier        go to state 26
+
+
+state 35
+
+    6 varDeclaration: typeSpecifier ID . SEMICOLON
+    7               | typeSpecifier ID . LSQUARE NUM RSQUARE SEMICOLON
+
+    SEMICOLON  shift, and go to state 54
+    LSQUARE    shift, and go to state 55
+
+
+state 36
+
+   53 ioReadTail: COMMA . ID ioReadTail
+
+    ID  shift, and go to state 56
+
+
+state 37
+
+   54 ioReadTail: SEMICOLON .
+
+    $default  reduce using rule 54 (ioReadTail)
+
+
+state 38
+
+   51 ioStmt: READ ID ioReadTail .
+
+    $default  reduce using rule 51 (ioStmt)
+
+
+state 39
+
+   55 ioWriteTail: COMMA . ID ioWriteTail
+
+    ID  shift, and go to state 57
+
+
+state 40
+
+   56 ioWriteTail: SEMICOLON .
+
+    $default  reduce using rule 56 (ioWriteTail)
+
+
+state 41
+
+   52 ioStmt: WRITE ID ioWriteTail .
+
+    $default  reduce using rule 52 (ioStmt)
+
+
+state 42
+
+   26 selectionStmt: IF . LPAREN boolExpression RPAREN statement
+   27              | IF . LPAREN boolExpression RPAREN statement ELSE statement
+
+    LPAREN  shift, and go to state 58
+
+
+state 43
+
+   28 iterationStmt: WHILE . LPAREN boolExpression RPAREN statement
+
+    LPAREN  shift, and go to state 59
+
+
+state 44
+
+   29 assignmentStmt: ID . ASSIGNMENT additiveExpression
+   30               | ID . LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
+
+    ASSIGNMENT  shift, and go to state 60
+    LSQUARE     shift, and go to state 61
+
+
+state 45
+
+   22 statement: compoundStmt .
+
+    $default  reduce using rule 22 (statement)
+
+
+state 46
+
+   18 compoundStmt: LCURLY statementList . RCURLY
+
+    RCURLY  shift, and go to state 62
+
+
+state 47
+
+   19 statementList: statement . statementList
+
+    READ    shift, and go to state 22
+    WRITE   shift, and go to state 23
+    IF      shift, and go to state 42
+    WHILE   shift, and go to state 43
+    LCURLY  shift, and go to state 31
+    ID      shift, and go to state 44
+
+    $default  reduce using rule 20 (statementList)
+
+    compoundStmt    go to state 45
+    statementList   go to state 63
+    statement       go to state 47
+    selectionStmt   go to state 48
+    iterationStmt   go to state 49
+    assignmentStmt  go to state 50
+    ioStmt          go to state 51
+
+
+state 48
+
+   23 statement: selectionStmt .
+
+    $default  reduce using rule 23 (statement)
+
+
+state 49
+
+   24 statement: iterationStmt .
+
+    $default  reduce using rule 24 (statement)
+
+
+state 50
+
+   21 statement: assignmentStmt .
+
+    $default  reduce using rule 21 (statement)
+
+
+state 51
+
+   25 statement: ioStmt .
+
+    $default  reduce using rule 25 (statement)
+
+
+state 52
+
+    1 program: typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY .
+
+    $default  reduce using rule 1 (program)
+
+
+state 53
+
+    4 declarationListTail: varDeclaration declarationListTail .
+
+    $default  reduce using rule 4 (declarationListTail)
+
+
+state 54
+
+    6 varDeclaration: typeSpecifier ID SEMICOLON .
+
+    $default  reduce using rule 6 (varDeclaration)
+
+
+state 55
+
+    7 varDeclaration: typeSpecifier ID LSQUARE . NUM RSQUARE SEMICOLON
+
+    NUM  shift, and go to state 64
+
+
+state 56
+
+   53 ioReadTail: COMMA ID . ioReadTail
+
+    COMMA      shift, and go to state 36
+    SEMICOLON  shift, and go to state 37
+
+    ioReadTail  go to state 65
+
+
+state 57
+
+   55 ioWriteTail: COMMA ID . ioWriteTail
+
+    COMMA      shift, and go to state 39
+    SEMICOLON  shift, and go to state 40
+
+    ioWriteTail  go to state 66
+
+
+state 58
+
+   26 selectionStmt: IF LPAREN . boolExpression RPAREN statement
+   27              | IF LPAREN . boolExpression RPAREN statement ELSE statement
+
+    LPAREN  shift, and go to state 67
+    ID      shift, and go to state 68
+    NUM     shift, and go to state 69
+
+    var                 go to state 70
+    boolExpression      go to state 71
+    additiveExpression  go to state 72
+    term                go to state 73
+    factor              go to state 74
+
+
+state 59
+
+   28 iterationStmt: WHILE LPAREN . boolExpression RPAREN statement
+
+    LPAREN  shift, and go to state 67
+    ID      shift, and go to state 68
+    NUM     shift, and go to state 69
+
+    var                 go to state 70
+    boolExpression      go to state 75
+    additiveExpression  go to state 72
+    term                go to state 73
+    factor              go to state 74
+
+
+state 60
+
+   29 assignmentStmt: ID ASSIGNMENT . additiveExpression
+
+    LPAREN  shift, and go to state 67
+    ID      shift, and go to state 68
+    NUM     shift, and go to state 69
+
+    var                 go to state 70
+    additiveExpression  go to state 76
+    term                go to state 73
+    factor              go to state 74
+
+
+state 61
+
+   30 assignmentStmt: ID LSQUARE . additiveExpression RSQUARE ASSIGNMENT additiveExpression
+
+    LPAREN  shift, and go to state 67
+    ID      shift, and go to state 68
+    NUM     shift, and go to state 69
+
+    var                 go to state 70
+    additiveExpression  go to state 77
+    term                go to state 73
+    factor              go to state 74
+
+
+state 62
+
+   18 compoundStmt: LCURLY statementList RCURLY .
+
+    $default  reduce using rule 18 (compoundStmt)
+
+
+state 63
+
+   19 statementList: statement statementList .
+
+    $default  reduce using rule 19 (statementList)
+
+
+state 64
+
+    7 varDeclaration: typeSpecifier ID LSQUARE NUM . RSQUARE SEMICOLON
+
+    RSQUARE  shift, and go to state 78
+
+
+state 65
+
+   53 ioReadTail: COMMA ID ioReadTail .
+
+    $default  reduce using rule 53 (ioReadTail)
+
+
+state 66
+
+   55 ioWriteTail: COMMA ID ioWriteTail .
+
+    $default  reduce using rule 55 (ioWriteTail)
+
+
+state 67
+
+   48 factor: LPAREN . additiveExpression RPAREN
+
+    LPAREN  shift, and go to state 67
+    ID      shift, and go to state 68
+    NUM     shift, and go to state 69
+
+    var                 go to state 70
+    additiveExpression  go to state 79
+    term                go to state 73
+    factor              go to state 74
+
+
+state 68
+
+   31 var: ID .
+   32    | ID . LSQUARE additiveExpression RSQUARE
+
+    LSQUARE  shift, and go to state 80
+
+    $default  reduce using rule 31 (var)
+
+
+state 69
+
+   50 factor: NUM .
+
+    $default  reduce using rule 50 (factor)
+
+
+state 70
+
+   49 factor: var .
+
+    $default  reduce using rule 49 (factor)
+
+
+state 71
+
+   26 selectionStmt: IF LPAREN boolExpression . RPAREN statement
+   27              | IF LPAREN boolExpression . RPAREN statement ELSE statement
+
+    RPAREN  shift, and go to state 81
+
+
+state 72
+
+   33 boolExpression: additiveExpression . relop additiveExpression
+
+    EQUALS            shift, and go to state 82
+    NOT_EQUALS        shift, and go to state 83
+    LESS_THAN         shift, and go to state 84
+    LESS_OR_EQUAL     shift, and go to state 85
+    GREATER_THAN      shift, and go to state 86
+    GREATER_OR_EQUAL  shift, and go to state 87
+
+    relop  go to state 88
+
+
+state 73
+
+   40 additiveExpression: term .
+   41                   | term . addop additiveExpression
+
+    PLUS   shift, and go to state 89
+    MINUS  shift, and go to state 90
+
+    $default  reduce using rule 40 (additiveExpression)
+
+    addop  go to state 91
+
+
+state 74
+
+   42 term: factor .
+   43     | factor . mulop term
+
+    MULTIPLY  shift, and go to state 92
+    DIVIDE    shift, and go to state 93
+
+    $default  reduce using rule 42 (term)
+
+    mulop  go to state 94
+
+
+state 75
+
+   28 iterationStmt: WHILE LPAREN boolExpression . RPAREN statement
+
+    RPAREN  shift, and go to state 95
+
+
+state 76
+
+   29 assignmentStmt: ID ASSIGNMENT additiveExpression .
+
+    $default  reduce using rule 29 (assignmentStmt)
+
+
+state 77
+
+   30 assignmentStmt: ID LSQUARE additiveExpression . RSQUARE ASSIGNMENT additiveExpression
+
+    RSQUARE  shift, and go to state 96
+
+
+state 78
+
+    7 varDeclaration: typeSpecifier ID LSQUARE NUM RSQUARE . SEMICOLON
+
+    SEMICOLON  shift, and go to state 97
+
+
+state 79
+
+   48 factor: LPAREN additiveExpression . RPAREN
+
+    RPAREN  shift, and go to state 98
+
+
+state 80
+
+   32 var: ID LSQUARE . additiveExpression RSQUARE
+
+    LPAREN  shift, and go to state 67
+    ID      shift, and go to state 68
+    NUM     shift, and go to state 69
+
+    var                 go to state 70
+    additiveExpression  go to state 99
+    term                go to state 73
+    factor              go to state 74
+
+
+state 81
+
+   26 selectionStmt: IF LPAREN boolExpression RPAREN . statement
+   27              | IF LPAREN boolExpression RPAREN . statement ELSE statement
+
+    READ    shift, and go to state 22
+    WRITE   shift, and go to state 23
+    IF      shift, and go to state 42
+    WHILE   shift, and go to state 43
+    LCURLY  shift, and go to state 31
+    ID      shift, and go to state 44
+
+    compoundStmt    go to state 45
+    statement       go to state 100
+    selectionStmt   go to state 48
+    iterationStmt   go to state 49
+    assignmentStmt  go to state 50
+    ioStmt          go to state 51
+
+
+state 82
+
+   38 relop: EQUALS .
+
+    $default  reduce using rule 38 (relop)
+
+
+state 83
+
+   39 relop: NOT_EQUALS .
+
+    $default  reduce using rule 39 (relop)
+
+
+state 84
+
+   35 relop: LESS_THAN .
+
+    $default  reduce using rule 35 (relop)
+
+
+state 85
+
+   34 relop: LESS_OR_EQUAL .
+
+    $default  reduce using rule 34 (relop)
+
+
+state 86
+
+   36 relop: GREATER_THAN .
+
+    $default  reduce using rule 36 (relop)
+
+
+state 87
+
+   37 relop: GREATER_OR_EQUAL .
+
+    $default  reduce using rule 37 (relop)
+
+
+state 88
+
+   33 boolExpression: additiveExpression relop . additiveExpression
+
+    LPAREN  shift, and go to state 67
+    ID      shift, and go to state 68
+    NUM     shift, and go to state 69
+
+    var                 go to state 70
+    additiveExpression  go to state 101
+    term                go to state 73
+    factor              go to state 74
+
+
+state 89
+
+   44 addop: PLUS .
+
+    $default  reduce using rule 44 (addop)
+
+
+state 90
+
+   45 addop: MINUS .
+
+    $default  reduce using rule 45 (addop)
+
+
+state 91
+
+   41 additiveExpression: term addop . additiveExpression
+
+    LPAREN  shift, and go to state 67
+    ID      shift, and go to state 68
+    NUM     shift, and go to state 69
+
+    var                 go to state 70
+    additiveExpression  go to state 102
+    term                go to state 73
+    factor              go to state 74
+
+
+state 92
+
+   46 mulop: MULTIPLY .
+
+    $default  reduce using rule 46 (mulop)
+
+
+state 93
+
+   47 mulop: DIVIDE .
+
+    $default  reduce using rule 47 (mulop)
+
+
+state 94
+
+   43 term: factor mulop . term
+
+    LPAREN  shift, and go to state 67
+    ID      shift, and go to state 68
+    NUM     shift, and go to state 69
+
+    var     go to state 70
+    term    go to state 103
+    factor  go to state 74
+
+
+state 95
+
+   28 iterationStmt: WHILE LPAREN boolExpression RPAREN . statement
+
+    READ    shift, and go to state 22
+    WRITE   shift, and go to state 23
+    IF      shift, and go to state 42
+    WHILE   shift, and go to state 43
+    LCURLY  shift, and go to state 31
+    ID      shift, and go to state 44
+
+    compoundStmt    go to state 45
+    statement       go to state 104
+    selectionStmt   go to state 48
+    iterationStmt   go to state 49
+    assignmentStmt  go to state 50
+    ioStmt          go to state 51
+
+
+state 96
+
+   30 assignmentStmt: ID LSQUARE additiveExpression RSQUARE . ASSIGNMENT additiveExpression
+
+    ASSIGNMENT  shift, and go to state 105
+
+
+state 97
+
+    7 varDeclaration: typeSpecifier ID LSQUARE NUM RSQUARE SEMICOLON .
+
+    $default  reduce using rule 7 (varDeclaration)
+
+
+state 98
+
+   48 factor: LPAREN additiveExpression RPAREN .
+
+    $default  reduce using rule 48 (factor)
+
+
+state 99
+
+   32 var: ID LSQUARE additiveExpression . RSQUARE
+
+    RSQUARE  shift, and go to state 106
+
+
+state 100
+
+   26 selectionStmt: IF LPAREN boolExpression RPAREN statement .
+   27              | IF LPAREN boolExpression RPAREN statement . ELSE statement
+
+    ELSE  shift, and go to state 107
+
+    $default  reduce using rule 26 (selectionStmt)
+
+
+state 101
+
+   33 boolExpression: additiveExpression relop additiveExpression .
+
+    $default  reduce using rule 33 (boolExpression)
+
+
+state 102
+
+   41 additiveExpression: term addop additiveExpression .
+
+    $default  reduce using rule 41 (additiveExpression)
+
+
+state 103
+
+   43 term: factor mulop term .
+
+    $default  reduce using rule 43 (term)
+
+
+state 104
+
+   28 iterationStmt: WHILE LPAREN boolExpression RPAREN statement .
+
+    $default  reduce using rule 28 (iterationStmt)
+
+
+state 105
+
+   30 assignmentStmt: ID LSQUARE additiveExpression RSQUARE ASSIGNMENT . additiveExpression
+
+    LPAREN  shift, and go to state 67
+    ID      shift, and go to state 68
+    NUM     shift, and go to state 69
+
+    var                 go to state 70
+    additiveExpression  go to state 108
+    term                go to state 73
+    factor              go to state 74
+
+
+state 106
+
+   32 var: ID LSQUARE additiveExpression RSQUARE .
+
+    $default  reduce using rule 32 (var)
+
+
+state 107
+
+   27 selectionStmt: IF LPAREN boolExpression RPAREN statement ELSE . statement
+
+    READ    shift, and go to state 22
+    WRITE   shift, and go to state 23
+    IF      shift, and go to state 42
+    WHILE   shift, and go to state 43
+    LCURLY  shift, and go to state 31
+    ID      shift, and go to state 44
+
+    compoundStmt    go to state 45
+    statement       go to state 109
+    selectionStmt   go to state 48
+    iterationStmt   go to state 49
+    assignmentStmt  go to state 50
+    ioStmt          go to state 51
+
+
+state 108
+
+   30 assignmentStmt: ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression .
+
+    $default  reduce using rule 30 (assignmentStmt)
+
+
+state 109
+
+   27 selectionStmt: IF LPAREN boolExpression RPAREN statement ELSE statement .
+
+    $default  reduce using rule 27 (selectionStmt)
