@@ -1,2 +1,4 @@
 .vscode
 .idea
+a.out.dSYM
+a.out.dSYM/Contents/Info.plist

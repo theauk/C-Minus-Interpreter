@@ -1,28 +1,11 @@
-/* A program with a missing '{' */
-
-void main(void)
-{
-    int x;
-    int y;
-    /* there is a missing { */
-    x = 2}
-}
-
-/* This is a program without syntax errors 
-but with lexical errors */
+/* Error: Type mismatch */
 int program (int u, int v){
-    float z;
-    int z;
-    float v[4];
-    int test;
-    int l;
+    float z[4];
+    int h;
     {
-        l = 2
-        v[l] = 9
-        /* With a comment inside */
-        if ( test != 2) test = test + 2 * 4
-        else while (z != 7) v[1] = 1
-        write a,b;
+        z[2] = 4
+        write z[2]
+        h = z[2]
     }
 }
 

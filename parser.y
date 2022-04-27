@@ -19,11 +19,11 @@
     void assignmentArray(char key[], float index, float val);
     float getVar(char var[]);
     void writeInput(char id[]);
-    int getLine();
 
     struct SymbolTable s; // Symbol table structure from symbolTable.h
     struct Stack stack;
     bool currentIf;
+    int lastVarArrayIndex;
 %}
 
 // Types for tokens
@@ -166,7 +166,21 @@ assignmentStmt:
       }
       ;
 
-var: ID | ID LSQUARE additiveExpression RSQUARE;
+var: 
+      ID 
+      | ID LSQUARE additiveExpression RSQUARE 
+      { 
+        if ((strcmp(getExpType($3), "float") == 0))
+        {
+          interpreterError("array subscript is not an integer", "");
+        }
+        else
+        {
+          lastVarArrayIndex = $3; // Store the specified index for value lookup 
+          $$ =  $1; 
+        }
+      }
+      ;
 
 boolExpression: 
       additiveExpression relop additiveExpression
@@ -216,17 +230,18 @@ factor:
   LPAREN additiveExpression RPAREN { $$ = $2;}
   | var 
   { 
+    printf("VAAR %s\n", $1);
     $$ = getVar($1); /* Get the variable value from the symbol table */
   }
   | NUM { $$ = yylval.floating; } /* Get the NUM from the Lex scanner */
   ;
 
 ioStmt: 
-      WRITE ID ioWriteTail { writeInput($2); } 
+      WRITE var ioWriteTail { writeInput($2); } 
       ;
 
 ioWriteTail: 
-      COMMA ID ioWriteTail { writeInput($2); }
+      COMMA var ioWriteTail { writeInput($2); }
       | /* epsilon */ 
       ;
 
@@ -303,7 +318,14 @@ float getVar(char var[]) {
     if (containsIndex == -1) {
         interpreterError("variable not declared", var);
     }
-    return symbolTableGet(s, containsIndex).value;
+    if (isArray(s, var, containsIndex)) // Get the value at the specified array index
+    {
+      return symbolTableGet(s, containsIndex).array[lastVarArrayIndex];
+    }
+    else
+    {
+      return symbolTableGet(s, containsIndex).value;
+    }
 }
 
 /*
@@ -357,15 +379,11 @@ void assignmentArray(char key[], float index, float val) {
     }
 }
 
-int getLine() {
-    return line;
-}
-
 /*
   Prints out interpretation errors.
 */
 void interpreterError(char error[], char val[]) {
-    printf("Ln %d: %s %s", line - 1, val, error);
+    printf("Ln %d: %s %s\n", line - 1, val, error);
     exit(1); /* Terminates when encountering a semantic error */
 }
 
@@ -376,7 +394,7 @@ void writeInput(char id[]) {
         interpreterError("variable not declared", id);
     } else {
         struct Entry e = symbolTableGet(s, containsIndex);
-        printf("\nWrite for %s\n", id);
+        printf("\n- write var %s -\n", id);
         if (e.isArray) {
             printArray(id, e);
         } else {

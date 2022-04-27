@@ -82,3 +82,10 @@ int symbolTableContains(struct SymbolTable s, char k[]) {
     }
     return -1;
 }
+
+/*
+    Checks if an entry is an array.
+*/
+int isArray(struct SymbolTable s, char k[], int index) {
+    return s.values[index].isArray;
+}

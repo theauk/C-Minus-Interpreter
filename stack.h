@@ -16,7 +16,7 @@ struct Stack initStack(struct Stack s) {
 
 struct Stack pop(struct Stack s) {
 
-    s.top = s.top - 1;
+    if (s.top > 1) s.top = s.top - 1;
     for (int i = 0; i < s.top + 1; i++) {
 
     }
