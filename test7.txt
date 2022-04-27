@@ -1,17 +1,13 @@
-/* This is a program with nested conditionals */
-int test (void) {
+/* This is a program */
+float name (int v) {
     int l;
-    int r;
+    float r[2];
     {
-        if(2 == 2) 
-        {
-            l = 9
-            r = 76
-        }
-        else
-        {
-            l = 0
-            r = 0
-        }
+        write r[1], l
+        r[0] = 1
+        r[1] = r[0]
+        l = r[0]
+        r[1] = 2 * r[0]
     }
 }
+
