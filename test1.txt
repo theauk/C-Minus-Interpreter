@@ -1,20 +1,12 @@
-/* This is a program with nested conditionals */
+/* Error: Variable not declared */
 int test (void) {
     int l;
     int r;
-    int z[4];
     {
-        z = 2
-        if(2 == 2) 
-        
-            if (5 != 5)
-                {r = 2}
-            else 
-                if (8 < 9)
-                    r = 1
-        
-        else {l = 4} 
-
         l = 5 + 9
+        if (l > 0) {
+            l = l + 2
+        }
+        k = 2
     }
 }

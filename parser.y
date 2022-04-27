@@ -89,7 +89,7 @@ program: start LCURLY declarationList compoundStmt RCURLY;
 start: 
   typeSpecifier ID LPAREN params RPAREN 
   {
-    printf("START HELT\n");
+
     insertProgramEntry($1, $2);
   }
   ;
@@ -132,42 +132,34 @@ param:
   }
   ;
 
-compoundStmt: LCURLY statementList RCURLY { printf("CURLE\n"); };
+compoundStmt: LCURLY statementList RCURLY;
 
 statementList: statement statementList | /* epsilon */;
 
-statement: assignmentStmt { printf("staAss\n"); }| compoundStmt { printf("staCom\n"); } | selectionStmt | iterationStmt | ioStmt ;
+statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStmt ;
 
-selectionStmt: ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER { printf("SHORT\n"); stack = pop(stack); } | ifStmt LPAREN boolExpression RPAREN statement elseStm statement { printf("SHORT\n"); stack = pop(stack); };
+selectionStmt: ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER { stack = pop(stack); } | ifStmt LPAREN boolExpression RPAREN statement ELSE statement { stack = pop(stack); };
 
-ifStmt: IF {currentIf = 1; printf("IF\n");};
-
-elseStm: ELSE {printf("ELSE\n");};
+ifStmt: IF {currentIf = 1; };
 
 iterationStmt: 
       WHILE LPAREN boolExpression RPAREN statement
-      {
-        printf("WHILE\n");
-        { stack = pop(stack); }
-      }
+      { stack = pop(stack); }
       ;
 
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
       {
-        printf("ID ASSIGNMENT additiveExpression %s %f\n", $1, $3);
-        printf("K %d\n", stack.top);
         if (peek(stack) == 1) {
-          printf("ASSIGN %s %f", $1, $3);
             assignmentSimple($1, $3); 
           } /* Perform non-array assignment */
         stack = pop(stack);
       }
       | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
       {
-        printf("ID ASSIGNMENT additiveExpression RSQUARE ASSIGNMENT additiveExpression\n");
+        
         if (peek(stack) == 1) {
-          printf("ASSIGN %s %f", $1, $6);
+          
           assignmentArray($1, $3, $6);
         } /* Perform array assignment */
         stack = pop(stack);
@@ -181,7 +173,7 @@ boolExpression:
       {
         if (currentIf == 1 && peek(stack) == 0)
         {
-          printf("NESTED BOOL: %d from, %f, %f\n", getBoolExp($2, $1, $3), $1, $3);
+
           $$ = getBoolExp($2, $1, $3); 
           stack = push(stack, 0);
           stack = push(stack, 0);
@@ -189,7 +181,7 @@ boolExpression:
         }
         else 
         {
-          printf("BOOL: %d from, %f, %f\n", getBoolExp($2, $1, $3), $1, $3);
+
           $$ = getBoolExp($2, $1, $3); 
           stack = push(stack, $$ == 0);
           stack = push(stack, $$);
