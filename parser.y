@@ -23,6 +23,7 @@
     struct SymbolTable s; // Symbol table structure from symbolTable.h
     struct Stack stack;
     bool currentIf;
+    bool inIf;
     int lastVarArrayIndex;
 %}
 
@@ -132,15 +133,15 @@ param:
   }
   ;
 
-compoundStmt: LCURLY statementList RCURLY;
+compoundStmt: LCURLY statementList RCURLY {printf("COMP DEEPER\n");};
 
-statementList: statement statementList | /* epsilon */;
+statementList: statement statementList {printf("STMPLIST\n");} | /* epsilon */;
 
-statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStmt ;
+statement: assignmentStmt | compoundStmt {printf("COMP\n"); stack = pop(stack); } | selectionStmt | iterationStmt | ioStmt ;
 
-selectionStmt: ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER { stack = pop(stack); } | ifStmt LPAREN boolExpression RPAREN statement ELSE statement { stack = pop(stack); };
+selectionStmt: ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER { printf("END IF\n"); inIf = 0; } | ifStmt LPAREN boolExpression RPAREN statement ELSE statement { printf("END IF\n"); inIf = 0; };
 
-ifStmt: IF {currentIf = 1; };
+ifStmt: IF {currentIf = 1; inIf = 1; };
 
 iterationStmt: 
       WHILE LPAREN boolExpression RPAREN statement
@@ -150,19 +151,20 @@ iterationStmt:
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
       {
+        {printf("ASSIGN VAR %s %f\n", $1, $3);} 
         if (peek(stack) == 1) {
             assignmentSimple($1, $3); 
           } /* Perform non-array assignment */
-        stack = pop(stack);
+        //stack = pop(stack);
       }
       | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
       {
-        
+        {printf("ASSIGN VAR[] %s %f\n", $1, $3);} 
         if (peek(stack) == 1) {
           
           assignmentArray($1, $3, $6);
         } /* Perform array assignment */
-        stack = pop(stack);
+        //stack = pop(stack);
       }
       ;
 
@@ -185,9 +187,10 @@ var:
 boolExpression: 
       additiveExpression relop additiveExpression
       {
+        
         if (currentIf == 1 && peek(stack) == 0)
         {
-
+          printf("BOOL 1 %f %s %f\n", $1, $2, $3);
           $$ = getBoolExp($2, $1, $3); 
           stack = push(stack, 0);
           stack = push(stack, 0);
@@ -195,7 +198,7 @@ boolExpression:
         }
         else 
         {
-
+          printf("BOOL 2 %f %s %f\n", $1, $2, $3);
           $$ = getBoolExp($2, $1, $3); 
           stack = push(stack, $$ == 0);
           stack = push(stack, $$);
@@ -404,8 +407,9 @@ void writeInput(char id[]) {
 }
 
 int main(void) {
+    printf("\n");
     stack = initStack(stack);
     yyparse();
-    printf("\nno syntax errors found while parsing\n");
+    printf("no syntax errors found while parsing\n");
     printSymbolTable(s);
 }

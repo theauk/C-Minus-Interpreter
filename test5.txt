@@ -1,0 +1,12 @@
+/* Error: using index on non-array variable */
+void main(void)
+{
+    int p;
+    {
+        /* p is not an array */
+        p[10] = 2
+    }
+}
+
+
+

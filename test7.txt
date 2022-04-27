@@ -1,0 +1,17 @@
+/* This is a program with nested conditionals */
+int test (void) {
+    int l;
+    int r;
+    {
+        if(2 == 2) 
+        {
+            l = 9
+            r = 76
+        }
+        else
+        {
+            l = 0
+            r = 0
+        }
+    }
+}
