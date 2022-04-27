@@ -30,15 +30,23 @@ void printSymbolTable(struct SymbolTable s)
 */
 void printNonArray(char key[], struct Entry e)
 {
-  printf("var: %s; type: %s; declaration line: %d; value: ", key, e.type, e.line);
-  if (strcmp(e.type, "int") == 0)
+  printf("var: %s; type: %s; declaration line: %d; ", key, e.type, e.line);
+
+  if (strcmp(e.type, "program") != 0) 
   {
-    int val = e.value;
-    printf("%d; \n", val);
+    if (strcmp(e.type, "int") == 0)
+    {
+      int val = e.value;
+      printf("value: %d; \n", val);
+    }
+    else 
+    {
+      printf("value: %f; \n", e.value);
+    }
   }
   else 
   {
-    printf("%f; \n", e.value);
+    printf("\n");
   }
 }
 

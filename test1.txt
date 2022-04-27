@@ -4,8 +4,15 @@ int test (void) {
     int l;
     int r;
     {
-        if(2 == 2) l = 2
+        if(2 == 2) 
+        
+            if (5 == 5)
+                r = 2
+            else 
+                r = 9
+        
+        else {l = 4} 
 
-        while (l == 2) l = 4
+        
     }
 }

@@ -9,6 +9,7 @@
     int yylex();                    // Built-in function that recognizes input stream tokens and returns them to the parser
     void yyerror(char const *s);    // Function used for error messages
     
+    void insertProgramEntry(char type[], char key[]);
     void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize); // Functions defined below
     void interpreterError(char error[], char val[]);
     char * getExpType(float exp);
@@ -23,6 +24,7 @@
     struct SymbolTable s; // Symbol table structure from symbolTable.h
     struct Stack stack;
     int extraLine;
+    bool currentIf;
 
     int yydebug = 1;
 %}
@@ -85,7 +87,15 @@
 
 // Grammar Rules
 %%
-program: typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY;
+program: start LCURLY declarationList compoundStmt RCURLY;
+
+start: 
+  typeSpecifier ID LPAREN params RPAREN 
+  {
+    printf("START HELT\n");
+    insertProgramEntry($1, $2);
+  }
+  ;
 
 declarationList: varDeclaration declarationListTail | ioStmt;
 
@@ -125,13 +135,17 @@ param:
   }
   ;
 
-compoundStmt: LCURLY statementList RCURLY
+compoundStmt: LCURLY statementList RCURLY { printf("CURLE\n"); };
 
 statementList: statement statementList | /* epsilon */;
 
-statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStmt ;
+statement: assignmentStmt { printf("staAss\n"); }| compoundStmt { printf("staCom\n"); } | selectionStmt | iterationStmt | ioStmt ;
 
-selectionStmt: IF LPAREN boolExpression RPAREN statement %prec IF_LOWER { stack = pop(stack); } | IF LPAREN boolExpression RPAREN statement ELSE statement;
+selectionStmt: ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER { printf("SHORT\n"); stack = pop(stack); } | ifStmt LPAREN boolExpression RPAREN statement elseStm statement { printf("SHORT\n"); stack = pop(stack); };
+
+ifStmt: IF {currentIf = 1; printf("IF\n");};
+
+elseStm: ELSE {printf("ELSE\n");};
 
 iterationStmt: 
       WHILE LPAREN boolExpression RPAREN statement
@@ -144,15 +158,21 @@ iterationStmt:
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
       {
-        printf("ID ASSIGNMENT additiveExpression %s\n", $1);
+        printf("ID ASSIGNMENT additiveExpression %s %f\n", $1, $3);
         printf("K %d\n", stack.top);
-        if (peek(stack) == 1) assignmentSimple($1, $3); /* Perform non-array assignment */
+        if (peek(stack) == 1) {
+          printf("ASSIGN %s %f", $1, $3);
+            assignmentSimple($1, $3); 
+          } /* Perform non-array assignment */
         stack = pop(stack);
       }
       | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
       {
         printf("ID ASSIGNMENT additiveExpression RSQUARE ASSIGNMENT additiveExpression\n");
-        if (peek(stack) == 1) assignmentArray($1, $3, $6); /* Perform array assignment */
+        if (peek(stack) == 1) {
+          printf("ASSIGN %s %f", $1, $6);
+          assignmentArray($1, $3, $6);
+        } /* Perform array assignment */
         stack = pop(stack);
       }
       ;
@@ -162,10 +182,22 @@ var: ID | ID LSQUARE additiveExpression RSQUARE;
 boolExpression: 
       additiveExpression relop additiveExpression
       {
-        printf("BOOL: %d from, %f, %f\n", getBoolExp($2, $1, $3), $1, $3);
-        $$ = getBoolExp($2, $1, $3); /* Get the boolean value for the relop expression */
-        stack = push(stack, $$ == 0);
-        stack = push(stack, $$);
+        if (currentIf == 1 && peek(stack) == 0)
+        {
+          printf("NESTED BOOL: %d from, %f, %f\n", getBoolExp($2, $1, $3), $1, $3);
+          $$ = getBoolExp($2, $1, $3); 
+          stack = push(stack, 0);
+          stack = push(stack, 0);
+          currentIf = 0;
+        }
+        else 
+        {
+          printf("BOOL: %d from, %f, %f\n", getBoolExp($2, $1, $3), $1, $3);
+          $$ = getBoolExp($2, $1, $3); 
+          stack = push(stack, $$ == 0);
+          stack = push(stack, $$);
+        }
+        /* Get the boolean value for the relop expression */
       }
       ;
 
@@ -211,6 +243,12 @@ ioWriteTail:
 
 %%
 #include "lex.yy.c" // Using Lex and yacc together
+
+void insertProgramEntry(char type[], char key[])
+{
+    s = symbolTableInsert(s, key, "program", 0, 0.0, line, 0);
+    s.nextEntryIndex = s.nextEntryIndex + 1;
+}
 
 /*
   Checks if a key is already in the symbol table. 
