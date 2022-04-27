@@ -25,8 +25,8 @@ struct SymbolTable {
 */
 struct SymbolTable
 symbolTableInsert(struct SymbolTable s, char k[], char t[], bool isArr, float v, int l, int arrSize) {
-    strcpy(s.keys[s.nextEntryIndex], k);
-    struct Entry newEntry;
+    strcpy(s.keys[s.nextEntryIndex], k); 
+    struct Entry newEntry; 
     strcpy(newEntry.type, t);
     newEntry.value = v;
     newEntry.line = l;
@@ -72,7 +72,8 @@ struct SymbolTable symbolTableUpdateArray(struct SymbolTable s, int index, int u
 }
 
 /*
-    Checks if the symbol table contains a certain key. 
+    Checks if the symbol table contains a certain key and returns its index. 
+    Returns -1 if the key is not in the symbol table.
 */
 int symbolTableContains(struct SymbolTable s, char k[]) {
     for (int i = 0; i < s.nextEntryIndex; i++) {
@@ -85,6 +86,7 @@ int symbolTableContains(struct SymbolTable s, char k[]) {
 
 /*
     Checks if an entry is an array.
+    Returns 1 if yes, 0 if no. 
 */
 int isArray(struct SymbolTable s, char k[], int index) {
     return s.values[index].isArray;

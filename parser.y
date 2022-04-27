@@ -8,8 +8,8 @@
     int yylex();                    // Built-in function that recognizes input stream tokens and returns them to the parser
     void yyerror(char const *s);    // Function used for error messages
     
-    void insertProgramEntry(char type[], char key[]);
-    void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize); // Functions defined below
+    void insertProgramEntry(char type[], char key[]); // Functions defined below
+    void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize); 
     void interpreterError(char error[], char val[]);
     char * getExpType(float exp);
     float calculate(char op[], float num1, float num2);
@@ -23,7 +23,7 @@
     int lastVarArrayIndex;
 %}
 
-// Types for tokens
+// Additional types for tokens
 %union {
     int number;
     float floating;
@@ -83,13 +83,7 @@
 %%
 program: start LCURLY declarationList compoundStmt RCURLY;
 
-start: 
-  typeSpecifier ID LPAREN params RPAREN 
-  {
-
-    insertProgramEntry($1, $2);
-  }
-  ;
+start: typeSpecifier ID LPAREN params RPAREN { insertProgramEntry($1, $2); }; /* Insert the program variable into the symbol table */
 
 declarationList: varDeclaration declarationListTail | ioStmt;
 
@@ -135,27 +129,18 @@ statementList: statement statementList | /* epsilon */;
 
 statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStmt ;
 
-selectionStmt: 
-      ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER 
-      | ifStmt LPAREN boolExpression RPAREN statement elseStmt statement 
-      ;
+selectionStmt: IF LPAREN boolExpression RPAREN statement %prec IF_LOWER | IF LPAREN boolExpression RPAREN statement ELSE statement;
 
-ifStmt: IF;
-
-elseStmt: ELSE;
-
-iterationStmt: 
-      WHILE LPAREN boolExpression RPAREN statement
-      ;
+iterationStmt: WHILE LPAREN boolExpression RPAREN statement;
 
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
       {
-        assignmentSimple($1, $3);     
+        assignmentSimple($1, $3); /* Assign value to non-array variable */     
       }
       | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
       {
-        assignmentArray($1, $3, $6);
+        assignmentArray($1, $3, $6); /* Assign value to array variable */
       }
       ;
 
@@ -163,26 +148,19 @@ var:
       ID 
       | ID LSQUARE additiveExpression RSQUARE 
       { 
-        if ((strcmp(getExpType($3), "float") == 0))
+        if ((strcmp(getExpType($3), "float") == 0)) /* Check for valid index */
         {
           interpreterError("array subscript is not an integer", "");
         }
         else
         {
-          lastVarArrayIndex = $3; // Store the specified index for value lookup 
-          $$ =  $1; 
+          lastVarArrayIndex = $3; /* Store the specified index for value lookup */
+          $$ =  $1; /* Pass the ID name on */
         }
       }
       ;
 
-boolExpression: 
-      additiveExpression relop additiveExpression
-      {
-        
-        $$ = getBoolExp($2, $1, $3); 
-        /* Get the boolean value for the relop expression */
-      }
-      ;
+boolExpression: additiveExpression relop additiveExpression { $$ = getBoolExp($2, $1, $3); }; /* Get the boolean value for the relop expression */
 
 relop: LESS_OR_EQUAL | LESS_THAN | GREATER_THAN | GREATER_OR_EQUAL | EQUALS | NOT_EQUALS;
 
@@ -208,25 +186,20 @@ mulop:
 
 factor: 
   LPAREN additiveExpression RPAREN { $$ = $2;}
-  | var 
-  { 
-    $$ = getVar($1); /* Get the variable value from the symbol table */
-  }
+  | var { $$ = getVar($1); } /* Get the variable value from the symbol table */
   | NUM { $$ = yylval.floating; } /* Get the NUM from the Lex scanner */
   ;
 
-ioStmt: 
-      WRITE var ioWriteTail { writeInput($2); } 
-      ;
+ioStmt: WRITE var ioWriteTail { writeInput($2); };
 
-ioWriteTail: 
-      COMMA var ioWriteTail { writeInput($2); }
-      | /* epsilon */ 
-      ;
+ioWriteTail: COMMA var ioWriteTail { writeInput($2); } | /* epsilon */ ;
 
 %%
 #include "lex.yy.c" // Using Lex and yacc together
 
+/*
+  Insert the initial program variable/declaration into the symbol table.
+*/
 void insertProgramEntry(char type[], char key[]) {
     s = symbolTableInsert(s, key, "program", 0, 0.0, line, 0);
     s.nextEntryIndex = s.nextEntryIndex + 1;
@@ -363,7 +336,7 @@ void assignmentArray(char key[], float index, float val) {
 */
 void interpreterError(char error[], char val[]) {
     printf("Ln %d: %s %s\n", line - 1, val, error);
-    exit(1); /* Terminates when encountering a semantic error */
+    exit(1); // Terminates when encountering a semantic error
 }
 
 void writeInput(char id[]) {
