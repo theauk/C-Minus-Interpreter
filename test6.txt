@@ -6,10 +6,11 @@ void main(void)
     int x[2];
     int y;
     {
-        if ((y + 2) == 4)
+        if ((2 + 2) == 4)
             if (y == 0) y = 2 /* true - but should not evaluate since above is false */
         else 
             write x[0]
+            x[1]=4
             if(x[0] <= 4) /* true - should evaluate */ 
             {
                 x[0] = 2 

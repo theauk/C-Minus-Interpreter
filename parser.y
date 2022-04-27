@@ -25,6 +25,9 @@
     bool currentIf;
     bool inIf;
     int lastVarArrayIndex;
+
+    bool execute;
+    bool first = 1;
 %}
 
 // Types for tokens
@@ -137,34 +140,63 @@ compoundStmt: LCURLY statementList RCURLY {printf("COMP DEEPER\n");};
 
 statementList: statement statementList {printf("STMPLIST\n");} | /* epsilon */;
 
-statement: assignmentStmt | compoundStmt {printf("COMP\n"); stack = pop(stack); } | selectionStmt | iterationStmt | ioStmt ;
+statement: assignmentStmt | compoundStmt {printf("COMP\n"); } | selectionStmt | iterationStmt | ioStmt ;
 
-selectionStmt: ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER { printf("END IF\n"); inIf = 0; } | ifStmt LPAREN boolExpression RPAREN statement ELSE statement { printf("END IF\n"); inIf = 0; };
+selectionStmt: 
+      ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER 
+      { 
+        printf("END IF\n"); inIf = 0; 
+      } 
+      | ifStmt LPAREN boolExpression RPAREN statement elseStmt statement 
+      { 
+        printf("END IF\n"); inIf = 0; 
+        }
+      ;
 
-ifStmt: IF {currentIf = 1; inIf = 1; };
+ifStmt: IF 
+      { 
+        printf("IF FOUND\n"); 
+        currentIf = 1; 
+        inIf = 1; 
+      }
+      ;
+
+elseStmt: ELSE 
+      { 
+        printf("ELSE FOUND\n"); inIf = 0; 
+        execute = !execute;
+        printf("EXECUTE %d\n", execute);
+      };
 
 iterationStmt: 
       WHILE LPAREN boolExpression RPAREN statement
-      { stack = pop(stack); }
+      //{ stack = pop(stack); }
       ;
 
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
       {
-        {printf("ASSIGN VAR %s %f\n", $1, $3);} 
-        if (peek(stack) == 1) {
-            assignmentSimple($1, $3); 
-          } /* Perform non-array assignment */
+        
+          printf("ASSIGN\n");
+        if (execute == 1) {
+          printf("ASSIGN VAR %s %f\n", $1, $3);
+            assignmentSimple($1, $3);     
+          } 
+          /* Perform non-array assignment */
         //stack = pop(stack);
+        
       }
       | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
       {
-        {printf("ASSIGN VAR[] %s %f\n", $1, $3);} 
-        if (peek(stack) == 1) {
-          
+
+        
+        if (execute == 1) {
+          printf("ASSIGN VAR[] %s %f\n", $1, $6);          
           assignmentArray($1, $3, $6);
-        } /* Perform array assignment */
-        //stack = pop(stack);
+        } 
+        
+        /* Perform array assignment */
+        
       }
       ;
 
@@ -188,21 +220,17 @@ boolExpression:
       additiveExpression relop additiveExpression
       {
         
-        if (currentIf == 1 && peek(stack) == 0)
-        {
-          printf("BOOL 1 %f %s %f\n", $1, $2, $3);
-          $$ = getBoolExp($2, $1, $3); 
-          stack = push(stack, 0);
-          stack = push(stack, 0);
-          currentIf = 0;
+        printf("BOOL EXP %f %s %f\n", $1, $2, $3);
+        $$ = getBoolExp($2, $1, $3); 
+        if (inIf && first) {
+          first = 0;
+          execute = $$; 
         }
-        else 
-        {
-          printf("BOOL 2 %f %s %f\n", $1, $2, $3);
-          $$ = getBoolExp($2, $1, $3); 
-          stack = push(stack, $$ == 0);
-          stack = push(stack, $$);
-        }
+        //execute = $$ == 0 ? 0 : 1;
+        //execute = $$;
+        printf("EXECUTE DOL %d\n", $$);
+        printf("EXECUTE %d\n", execute);
+        
         /* Get the boolean value for the relop expression */
       }
       ;
@@ -239,11 +267,11 @@ factor:
   ;
 
 ioStmt: 
-      WRITE var ioWriteTail { writeInput($2); } 
+      WRITE var ioWriteTail { if(execute == 1) writeInput($2); } 
       ;
 
 ioWriteTail: 
-      COMMA var ioWriteTail { writeInput($2); }
+      COMMA var ioWriteTail { if(execute == 1) writeInput($2); }
       | /* epsilon */ 
       ;
 
