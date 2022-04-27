@@ -18,9 +18,11 @@
     void assignmentArray(char key[], float index, float val);
     float getVar(char var[]);
     void writeInput(char id[]);
+    int getLine();
 
     struct SymbolTable s; // Symbol table structure from symbolTable.h
     struct Stack stack;
+    int extraLine;
 
     int yydebug = 1;
 %}
@@ -83,12 +85,7 @@
 
 // Grammar Rules
 %%
-program: 
-      typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY
-      {
-        insertOrUpdateEntry("program", $2, 0.0, false, 0); /* Insert value into symbol table */
-      }
-      ;
+program: typeSpecifier ID LPAREN params RPAREN LCURLY declarationList compoundStmt RCURLY;
 
 declarationList: varDeclaration declarationListTail | ioStmt;
 
@@ -106,9 +103,9 @@ varDeclaration:
       ;
 
 typeSpecifier: 
-      INT {$$ = $1;}
-      | FLOAT {$$ = $1;}
-      | VOID {$$ = $1;}
+      INT {$$ = $1; extraLine = getLine();}
+      | FLOAT {$$ = $1; extraLine = getLine();}
+      | VOID {$$ = $1; extraLine = getLine();}
       ;
 
 params: paramList | VOID; 
@@ -134,88 +131,29 @@ statementList: statement statementList | /* epsilon */;
 
 statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStmt ;
 
-selectionStmt: 
-      IF LPAREN boolExpression RPAREN 
-      { 
-        printf("D\n");
-        if (peek(stack) == 1)
-        {
-          stack = push(stack, $3 != 0);
-        }
-        else
-        {
-          stack = push(stack, 0); 
-        }
-      } 
-      statement %prec IF_LOWER 
-      {
-        printf("E\n");
-        stack = pop(stack);
-      }
-      |
-      IF LPAREN boolExpression RPAREN 
-      { 
-        printf("A\n");
-        if (peek(stack) == 1)
-        {
-          stack = push(stack, $3 != 0);
-        }
-        else
-        {
-          stack = push(stack, 0); 
-        }
-      }
-      statement ELSE 
-      { 
-        printf("B\n");
-        if (peek(stack) == 1)
-        {
-          stack = push(stack, $3 == 0);
-        }
-        else
-        {
-          stack = push(stack, 0); 
-        }
-      }
-      statement
-      {
-        printf("C\n");
-        stack = pop(stack);
-      }
-      ;
-
+selectionStmt: IF LPAREN boolExpression RPAREN statement %prec IF_LOWER { stack = pop(stack); } | IF LPAREN boolExpression RPAREN statement ELSE statement;
 
 iterationStmt: 
-      WHILE LPAREN boolExpression RPAREN 
+      WHILE LPAREN boolExpression RPAREN statement
       {
-        printf("W\n");
-        if (peek(stack) == 1)
-        {
-          stack = push(stack, $3 != 0);
-        }
-        else
-        {
-          stack = push(stack, 0); 
-        }
-      }
-      statement
-      {
-        printf("C\n");
-        stack = pop(stack);
+        printf("WHILE\n");
+        { stack = pop(stack); }
       }
       ;
 
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
       {
-        printf("ID ASSIGNMENT additiveExpression\n");
+        printf("ID ASSIGNMENT additiveExpression %s\n", $1);
         printf("K %d\n", stack.top);
         if (peek(stack) == 1) assignmentSimple($1, $3); /* Perform non-array assignment */
+        stack = pop(stack);
       }
       | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
       {
         printf("ID ASSIGNMENT additiveExpression RSQUARE ASSIGNMENT additiveExpression\n");
         if (peek(stack) == 1) assignmentArray($1, $3, $6); /* Perform array assignment */
+        stack = pop(stack);
       }
       ;
 
@@ -226,6 +164,8 @@ boolExpression:
       {
         printf("BOOL: %d from, %f, %f\n", getBoolExp($2, $1, $3), $1, $3);
         $$ = getBoolExp($2, $1, $3); /* Get the boolean value for the relop expression */
+        stack = push(stack, $$ == 0);
+        stack = push(stack, $$);
       }
       ;
 
@@ -418,6 +358,11 @@ void assignmentArray(char key[], float index, float val)
       s = symbolTableUpdateArray(s, containsIndex, index, val);
     } 
   }
+}
+
+int getLine() 
+{
+  return line;
 }
 
 /*

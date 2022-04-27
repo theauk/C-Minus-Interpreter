@@ -20,7 +20,6 @@ struct Stack pop(struct Stack s)
 {
     printf("\nPOP TOP INDEX %d\n", s.top);
     s.top = s.top - 1;
-    printf("\nPOP TOP 2 INDEX %d\n", s.top);
     for(int i = 0; i < s.top + 1; i++)
     {
         printf("i: %d val: %d\n", i, s.stack[i]);

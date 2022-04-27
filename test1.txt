@@ -2,8 +2,10 @@
 but with lexical errors */
 int test (void) {
     int l;
-    int program;
+    int r;
     {
-        if(2 > 2) l = 2
+        if(2 == 2) l = 2
+
+        while (l == 2) l = 4
     }
 }
