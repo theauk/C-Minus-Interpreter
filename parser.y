@@ -4,7 +4,8 @@
     #include <string.h>
     #include <stdbool.h>            // Allows bool type usage
     #include "printer.h"            // Used to print symbol table
-
+    #include "stack.h"
+    
     int yylex();                    // Built-in function that recognizes input stream tokens and returns them to the parser
     void yyerror(char const *s);    // Function used for error messages
     
@@ -19,6 +20,9 @@
     void writeInput(char id[]);
 
     struct SymbolTable s; // Symbol table structure from symbolTable.h
+    struct Stack stack;
+
+    int yydebug = 1;
 %}
 
 // Types for tokens
@@ -130,18 +134,88 @@ statementList: statement statementList | /* epsilon */;
 
 statement: assignmentStmt | compoundStmt | selectionStmt | iterationStmt | ioStmt ;
 
-selectionStmt: IF LPAREN boolExpression RPAREN statement %prec IF_LOWER | IF LPAREN boolExpression RPAREN statement ELSE statement;
+selectionStmt: 
+      IF LPAREN boolExpression RPAREN 
+      { 
+        printf("D\n");
+        if (peek(stack) == 1)
+        {
+          stack = push(stack, $3 != 0);
+        }
+        else
+        {
+          stack = push(stack, 0); 
+        }
+      } 
+      statement %prec IF_LOWER 
+      {
+        printf("E\n");
+        stack = pop(stack);
+      }
+      |
+      IF LPAREN boolExpression RPAREN 
+      { 
+        printf("A\n");
+        if (peek(stack) == 1)
+        {
+          stack = push(stack, $3 != 0);
+        }
+        else
+        {
+          stack = push(stack, 0); 
+        }
+      }
+      statement ELSE 
+      { 
+        printf("B\n");
+        if (peek(stack) == 1)
+        {
+          stack = push(stack, $3 == 0);
+        }
+        else
+        {
+          stack = push(stack, 0); 
+        }
+      }
+      statement
+      {
+        printf("C\n");
+        stack = pop(stack);
+      }
+      ;
 
-iterationStmt: WHILE LPAREN boolExpression RPAREN statement;
+
+iterationStmt: 
+      WHILE LPAREN boolExpression RPAREN 
+      {
+        printf("W\n");
+        if (peek(stack) == 1)
+        {
+          stack = push(stack, $3 != 0);
+        }
+        else
+        {
+          stack = push(stack, 0); 
+        }
+      }
+      statement
+      {
+        printf("C\n");
+        stack = pop(stack);
+      }
+      ;
 
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
       {
-        assignmentSimple($1, $3); /* Perform non-array assignment */
+        printf("ID ASSIGNMENT additiveExpression\n");
+        printf("K %d\n", stack.top);
+        if (peek(stack) == 1) assignmentSimple($1, $3); /* Perform non-array assignment */
       }
       | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
       {
-        assignmentArray($1, $3, $6); /* Perform array assignment */
+        printf("ID ASSIGNMENT additiveExpression RSQUARE ASSIGNMENT additiveExpression\n");
+        if (peek(stack) == 1) assignmentArray($1, $3, $6); /* Perform array assignment */
       }
       ;
 
@@ -150,6 +224,7 @@ var: ID | ID LSQUARE additiveExpression RSQUARE;
 boolExpression: 
       additiveExpression relop additiveExpression
       {
+        printf("BOOL: %d from, %f, %f\n", getBoolExp($2, $1, $3), $1, $3);
         $$ = getBoolExp($2, $1, $3); /* Get the boolean value for the relop expression */
       }
       ;
@@ -378,6 +453,7 @@ void writeInput(char id[])
                                                                               
 int main(void) 
 {     
+  stack = initStack(stack);
   yyparse();
   printf("\nno syntax errors found while parsing\n");
   printSymbolTable(s);
