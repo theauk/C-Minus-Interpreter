@@ -1,18 +1,12 @@
-/* A correct program with if else and while statements */
-
+/* Error: assigning variable to an array
+without specifying the index */
 void main(void)
 {
     int x[2];
     int y;
     {
-        if ((y + 2) == 4)
-            if (y != 2) y = 2
-        else 
-            if(x[0] <= 4) x[0] = x[0] + 1
-            else x[0] = x[0] - 1
-            {
-                while(x[0] > 0) x[0] = x[0] + 0.1
-            }
+        /* x is an array so y is missing an index */
+        x = y
     }
 }
 
