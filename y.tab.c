@@ -515,9 +515,9 @@ static const yytype_uint8 yyrline[] =
        0,    87,    87,    90,    97,    97,    99,    99,   102,   106,
      113,   114,   115,   118,   118,   120,   122,   122,   125,   129,
      135,   137,   137,   139,   139,   139,   139,   139,   141,   141,
-     143,   146,   151,   158,   170,   171,   187,   208,   208,   208,
-     208,   208,   208,   211,   212,   216,   217,   221,   222,   226,
-     227,   231,   232,   237,   241,   245,   246
+     143,   146,   151,   158,   170,   171,   186,   207,   207,   207,
+     207,   207,   207,   210,   211,   215,   216,   220,   221,   225,
+     226,   230,   231,   235,   239,   243,   244
 };
 #endif
 
@@ -1589,15 +1589,14 @@ yyreduce:
         }
         else
         {
-          lastVarArrayIndex = (yyvsp[(3) - (4)].floating);
-          printf("%s\n", (yyvsp[(1) - (4)].str));
+          lastVarArrayIndex = (yyvsp[(3) - (4)].floating); // Store the specified index for value lookup 
           (yyval.str) =  (yyvsp[(1) - (4)].str); 
         }
       }
     break;
 
   case 36:
-#line 188 "parser.y"
+#line 187 "parser.y"
     {
         if (currentIf == 1 && peek(stack) == 0)
         {
@@ -1619,76 +1618,75 @@ yyreduce:
     break;
 
   case 43:
-#line 211 "parser.y"
+#line 210 "parser.y"
     { (yyval.floating) = (yyvsp[(1) - (1)].floating); }
     break;
 
   case 44:
-#line 212 "parser.y"
+#line 211 "parser.y"
     { (yyval.floating) = calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)); }
     break;
 
   case 45:
-#line 216 "parser.y"
+#line 215 "parser.y"
     { (yyval.floating) = (yyvsp[(1) - (1)].floating); }
     break;
 
   case 46:
-#line 217 "parser.y"
+#line 216 "parser.y"
     { (yyval.floating) = calculate((yyvsp[(2) - (3)].str), (yyvsp[(1) - (3)].floating), (yyvsp[(3) - (3)].floating)); }
     break;
 
   case 47:
-#line 221 "parser.y"
+#line 220 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 48:
-#line 222 "parser.y"
+#line 221 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 49:
-#line 226 "parser.y"
+#line 225 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 50:
-#line 227 "parser.y"
+#line 226 "parser.y"
     { (yyval.str) = (yyvsp[(1) - (1)].operator); }
     break;
 
   case 51:
-#line 231 "parser.y"
+#line 230 "parser.y"
     { (yyval.floating) = (yyvsp[(2) - (3)].floating);}
     break;
 
   case 52:
-#line 233 "parser.y"
+#line 232 "parser.y"
     { 
-    printf("VAAR %s\n", (yyvsp[(1) - (1)].str));
     (yyval.floating) = getVar((yyvsp[(1) - (1)].str)); /* Get the variable value from the symbol table */
   }
     break;
 
   case 53:
-#line 237 "parser.y"
+#line 235 "parser.y"
     { (yyval.floating) = yylval.floating; }
     break;
 
   case 54:
-#line 241 "parser.y"
+#line 239 "parser.y"
     { writeInput((yyvsp[(2) - (3)].str)); }
     break;
 
   case 55:
-#line 245 "parser.y"
+#line 243 "parser.y"
     { writeInput((yyvsp[(2) - (3)].str)); }
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1692 "y.tab.c"
+#line 1690 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1902,7 +1900,7 @@ yyreturn:
 }
 
 
-#line 249 "parser.y"
+#line 247 "parser.y"
 
 #include "lex.yy.c" // Using Lex and yacc together
 
@@ -2052,13 +2050,14 @@ void writeInput(char id[]) {
         interpreterError("variable not declared", id);
     } else {
         struct Entry e = symbolTableGet(s, containsIndex);
-        printf("\n- write var %s -\n", id);
+        printf("- write var %s -\n", id);
         if (e.isArray) {
             printArray(id, e);
         } else {
             printNonArray(id, e);
         }
     }
+    printf("\n");
 }
 
 int main(void) {

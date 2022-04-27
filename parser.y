@@ -230,7 +230,6 @@ factor:
   LPAREN additiveExpression RPAREN { $$ = $2;}
   | var 
   { 
-    printf("VAAR %s\n", $1);
     $$ = getVar($1); /* Get the variable value from the symbol table */
   }
   | NUM { $$ = yylval.floating; } /* Get the NUM from the Lex scanner */
@@ -394,13 +393,14 @@ void writeInput(char id[]) {
         interpreterError("variable not declared", id);
     } else {
         struct Entry e = symbolTableGet(s, containsIndex);
-        printf("\n- write var %s -\n", id);
+        printf("- write var %s -\n", id);
         if (e.isArray) {
             printArray(id, e);
         } else {
             printNonArray(id, e);
         }
     }
+    printf("\n");
 }
 
 int main(void) {
