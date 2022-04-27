@@ -39,7 +39,7 @@
     char *statement;
     bool boolExp;
     char *IO;
-};
+}
 
 // Definitions of tokens
 %token <operator> ELSE
@@ -244,200 +244,161 @@ ioWriteTail:
 %%
 #include "lex.yy.c" // Using Lex and yacc together
 
-void insertProgramEntry(char type[], char key[])
-{
+void insertProgramEntry(char type[], char key[]) {
     s = symbolTableInsert(s, key, "program", 0, 0.0, line, 0);
     s.nextEntryIndex = s.nextEntryIndex + 1;
 }
 
 /*
-  Checks if a key is already in the symbol table. 
+  Checks if a key is already in the symbol table.
   If yes, updates the entry. Otherwise, creates a new entry.
 */
-void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize)
-{
-  int containsIndex = symbolTableContains(s, key);
-  if (containsIndex == -1) 
-  {
-    s = symbolTableInsert(s, key, type, isArr, val, line, arrSize);
-    s.nextEntryIndex = s.nextEntryIndex + 1;
-  } 
-  else 
-  {
-    s = symbolTableUpdate(s, containsIndex, type, isArr, val, line, arrSize);
-  }
+void insertOrUpdateEntry(char type[], char key[], float val, bool isArr, int arrSize) {
+    int containsIndex = symbolTableContains(s, key);
+    if (containsIndex == -1) {
+        s = symbolTableInsert(s, key, type, isArr, val, line, arrSize);
+        s.nextEntryIndex = s.nextEntryIndex + 1;
+    } else {
+        s = symbolTableUpdate(s, containsIndex, type, isArr, val, line, arrSize);
+    }
 }
 
 /*
   Checks if an expression has to be a float value.
 */
-char * getExpType(float exp)
-{
-    int truncated = (int)exp;
-    if (exp == truncated)
-    {
-      return "int";
-    } 
-    else 
-    {
-      return "float";
+char *getExpType(float exp) {
+    int truncated = (int) exp;
+    if (exp == truncated) {
+        return "int";
+    } else {
+        return "float";
     }
 }
 
 /*
-  Computes arithmetric expressions for two numbers. 
+  Computes arithmetic expressions for two numbers.
 */
-float calculate(char op[], float num1, float num2)
-{
-  if (strcmp(op, "*") == 0)
-  {
-    return num1 * num2;
-  }
-  else if (strcmp(op, "/") == 0)
-  {
-    return num1 / num2;
-  }
-  else if (strcmp(op, "+") == 0)
-  {
-    return num1 + num2;
-  }
-  else
-  {
-    return num1 - num2;
-  }
+float calculate(char op[], float num1, float num2) {
+    if (strcmp(op, "*") == 0) {
+        return num1 * num2;
+    } else if (strcmp(op, "/") == 0) {
+        return num1 / num2;
+    } else if (strcmp(op, "+") == 0) {
+        return num1 + num2;
+    } else {
+        return num1 - num2;
+    }
 }
 
 /*
-  Gets the boolean value for comparison between two numbers. 
+  Gets the boolean value for comparison between two numbers.
 */
-bool getBoolExp(char op[], float num1, float num2) 
-{
-  if (strcmp("==", op) == 0) return num1 == num2;
-  else if (strcmp("!=", op) == 0) return num1 != num2;
-  else if (strcmp("<", op) == 0) return num1 < num2;
-  else if (strcmp("<=", op) == 0) return num1 <= num2;
-  else if (strcmp(">", op) == 0) return num1 > num2;
-  else if (strcmp(">=", op) == 0) return num1 >= num2;
-  else 
-  {
-    interpreterError("operator is not correct", "");
-    return false;
-  }
+bool getBoolExp(char op[], float num1, float num2) {
+    if (strcmp("==", op) == 0) return num1 == num2;
+    else if (strcmp("!=", op) == 0) return num1 != num2;
+    else if (strcmp("<", op) == 0) return num1 < num2;
+    else if (strcmp("<=", op) == 0) return num1 <= num2;
+    else if (strcmp(">", op) == 0) return num1 > num2;
+    else if (strcmp(">=", op) == 0) return num1 >= num2;
+    else {
+        interpreterError("operator is not correct", "");
+        return false;
+    }
 }
 
 /*
-  Checks if a variable is declared. If yes, returns it. 
+  Checks if a variable is declared. If yes, returns it.
 */
-float getVar(char var[]) 
-{
+float getVar(char var[]) {
     int containsIndex = symbolTableContains(s, var);
-    if (containsIndex == -1)
-    {
-      interpreterError("variable not declared", var);
+    if (containsIndex == -1) {
+        interpreterError("variable not declared", var);
     }
     return symbolTableGet(s, containsIndex).value;
 }
 
 /*
-  Performs assignment for non-array variables. 
+  Performs assignment for non-array variables.
 */
-void assignmentSimple(char key[], float val)
-{
-  int containsIndex = symbolTableContains(s, key);
-  if (containsIndex == -1) // Check if variable is in symbol table
-  {
-    interpreterError("variable not declared", key);
-  } 
-  else
-  {
-    struct Entry match = symbolTableGet(s, containsIndex);
-    if (match.isArray) // Check if there is invalid array assignment to non-array variable
+void assignmentSimple(char key[], float val) {
+    int containsIndex = symbolTableContains(s, key);
+    if (containsIndex == -1) // Check if variable is in symbol table
     {
-      interpreterError("assignment to expression with array type", "");
+        interpreterError("variable not declared", key);
+    } else {
+        struct Entry match = symbolTableGet(s, containsIndex);
+        if (match.isArray) // Check if there is invalid array assignment to non-array variable
+        {
+            interpreterError("assignment to expression with array type", "");
+        } else if ((strcmp(getExpType(val), "float") == 0) &&
+                   (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
+        {
+            interpreterError("type mismatch", "float and int");
+        } else // Update symbol table with new values
+        {
+            s = symbolTableUpdate(s, containsIndex, match.type, match.isArray, val, match.line, match.arraySize);
+        }
     }
-    else if ((strcmp(getExpType(val), "float") == 0) && (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
-    {
-      interpreterError("type mismatch", "float and int");
-    }
-    else // Update symbol table with new values
-    {
-      s = symbolTableUpdate(s, containsIndex, match.type, match.isArray, val, match.line, match.arraySize);
-    } 
-  }
 }
 
 /*
   Performs assignment for array variables.
 */
-void assignmentArray(char key[], float index, float val)
-{
-  int containsIndex = symbolTableContains(s, key);
-  if (containsIndex == -1) // Check if variable is in symbol table
-  {
-    interpreterError("variable not declared", key);
-  } 
-  else
-  {
-    struct Entry match = symbolTableGet(s, containsIndex);
-    if (!match.isArray) // Check if there is invalid non-array assignment to array variable
+void assignmentArray(char key[], float index, float val) {
+    int containsIndex = symbolTableContains(s, key);
+    if (containsIndex == -1) // Check if variable is in symbol table
     {
-      interpreterError("is not an array so cannnot assign value", key);
-    } 
-    else if ((strcmp(getExpType(index), "float") == 0)) // Check if array subscript is an integer
-    {
-      interpreterError("array subscript is not an integer", ""); 
+        interpreterError("variable not declared", key);
+    } else {
+        struct Entry match = symbolTableGet(s, containsIndex);
+        if (!match.isArray) // Check if there is invalid non-array assignment to array variable
+        {
+            interpreterError("is not an array so cannnot assign value", key);
+        } else if ((strcmp(getExpType(index), "float") == 0)) // Check if array subscript is an integer
+        {
+            interpreterError("array subscript is not an integer", "");
+        } else if ((strcmp(getExpType(val), "float") == 0) &&
+                   (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
+        {
+            interpreterError("type mismatch", "float and int");
+        } else // Update symbol table with new values
+        {
+            s = symbolTableUpdateArray(s, containsIndex, index, val);
+        }
     }
-    else if ((strcmp(getExpType(val), "float") == 0) && (strcmp(match.type, "int") == 0)) // Check if there is a type mismatch
-    {
-      interpreterError("type mismatch", "float and int");
-    }
-    else // Update symbol table with new values
-    {
-      s = symbolTableUpdateArray(s, containsIndex, index, val);
-    } 
-  }
 }
 
-int getLine() 
-{
-  return line;
+int getLine() {
+    return line;
 }
 
 /*
-  Prints out interpretation errors. 
+  Prints out interpretation errors.
 */
-void interpreterError(char error[], char val[])
-{
-  printf("Ln %d: %s %s", line - 1, val, error);
-  exit(1); /* Terminates when encountering a semantic error */
+void interpreterError(char error[], char val[]) {
+    printf("Ln %d: %s %s", line - 1, val, error);
+    exit(1); /* Terminates when encountering a semantic error */
 }
 
-void writeInput(char id[])
-{
-  int containsIndex = symbolTableContains(s, id);
-  if (containsIndex == -1) // Check if variable is in symbol table
-  {
-    interpreterError("variable not declared", id);
-  } 
-  else 
-  {
-    struct Entry e = symbolTableGet(s, containsIndex);
-    printf("\nWrite for %s\n", id);
-    if (e.isArray)
+void writeInput(char id[]) {
+    int containsIndex = symbolTableContains(s, id);
+    if (containsIndex == -1) // Check if variable is in symbol table
     {
-      printArray(id, e);
+        interpreterError("variable not declared", id);
+    } else {
+        struct Entry e = symbolTableGet(s, containsIndex);
+        printf("\nWrite for %s\n", id);
+        if (e.isArray) {
+            printArray(id, e);
+        } else {
+            printNonArray(id, e);
+        }
     }
-    else
-    {
-      printNonArray(id, e);
-    }
-  }
 }
-                                                                              
-int main(void) 
-{     
-  stack = initStack(stack);
-  yyparse();
-  printf("\nno syntax errors found while parsing\n");
-  printSymbolTable(s);
+
+int main(void) {
+    stack = initStack(stack);
+    yyparse();
+    printf("\nno syntax errors found while parsing\n");
+    printSymbolTable(s);
 }
