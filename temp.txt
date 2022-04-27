@@ -1,0 +1,59 @@
+/* A program with missing code after last if statement */
+
+void main(void)
+{
+    int x[2];
+    int y;
+    {
+        if ((y + 2) == 4)
+            if (y != 2) y = 2
+        else 
+            if(x[0] <= 4) x[0] = x[0] + 1
+            else x[0] = x[0] - 1
+            {
+                if (x[0] > 0) /* missing code */
+            }
+    }
+}
+
+
+/* This is a program with nested conditionals */
+int test (void) {
+    int l;
+    int r;
+    {
+        if(2 == 2) 
+        
+            if (5 != 5)
+                {r = 2}
+            else 
+                if (8 < 9)
+                    r = 1
+        
+        else {l = 4} 
+
+        l = 5 + 9
+    }
+}
+
+
+/* This is a program without syntax errors 
+but with lexical errors */
+int program (int u, int v){
+    float z;
+    int z;
+    float v[4];
+    int test;
+    int l;
+    {
+        l = 2
+        v[l] = 9
+        /* With a comment inside */
+        write test
+        if ( test != 2) test = test + 2 * 4
+        
+    }
+}
+
+
+
