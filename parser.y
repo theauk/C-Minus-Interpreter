@@ -4,7 +4,7 @@
     #include <string.h>
     #include <stdbool.h>            // Allows bool type usage
     #include "printer.h"            // Used to print symbol table
-    #include "stack.h"
+    #include "nestedStructure.h"
     
     int yylex();                    // Built-in function that recognizes input stream tokens and returns them to the parser
     void yyerror(char const *s);    // Function used for error messages
@@ -21,10 +21,17 @@
     void writeInput(char id[]);
 
     struct SymbolTable s; // Symbol table structure from symbolTable.h
-    struct Stack stack;
+    //struct Stack stack;
+
+
     bool currentIf;
     bool inIf;
     int lastVarArrayIndex;
+
+    struct Nested nested;
+    bool ifLast;
+
+    bool execute;
 %}
 
 // Types for tokens
@@ -137,33 +144,51 @@ compoundStmt: LCURLY statementList RCURLY {printf("COMP DEEPER\n");};
 
 statementList: statement statementList {printf("STMPLIST\n");} | /* epsilon */;
 
-statement: assignmentStmt | compoundStmt {printf("COMP\n"); stack = pop(stack); } | selectionStmt | iterationStmt | ioStmt ;
+statement: assignmentStmt | compoundStmt {printf("COMP\n");} | selectionStmt | iterationStmt | ioStmt ;
 
-selectionStmt: ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER { printf("END IF\n"); inIf = 0; } | ifStmt LPAREN boolExpression RPAREN statement ELSE statement { printf("END IF\n"); inIf = 0; };
+selectionStmt: 
+      ifStmt LPAREN boolExpression RPAREN statement %prec IF_LOWER 
+      { 
+        printf("END IF SHORT %d\n", $3); inIf = 0; 
+      } 
+      | ifStmt LPAREN boolExpression RPAREN statement elseStmt statement 
+      { 
+        printf("END IF LONG %d\n", $3); inIf = 0; 
+      }
+      ;
 
-ifStmt: IF {currentIf = 1; inIf = 1; };
+ifStmt: IF 
+      {
+        printf("IF START\n");  
+        nested = increaseConditionals(nested);
+        ifLast = 1;
+      };
+
+elseStmt: ELSE 
+      {
+        printf("ELSE FOUND\n");  
+        ifLast = 0;
+      };
 
 iterationStmt: 
       WHILE LPAREN boolExpression RPAREN statement
-      { stack = pop(stack); }
       ;
 
 assignmentStmt: 
       ID ASSIGNMENT additiveExpression
       {
         {printf("ASSIGN VAR %s %f\n", $1, $3);} 
-        if (peek(stack) == 1) {
-            assignmentSimple($1, $3); 
-          } /* Perform non-array assignment */
+        assignmentSimple($1, $3); 
+         /* Perform non-array assignment */
         //stack = pop(stack);
       }
       | ID LSQUARE additiveExpression RSQUARE ASSIGNMENT additiveExpression
       {
         {printf("ASSIGN VAR[] %s %f\n", $1, $3);} 
-        if (peek(stack) == 1) {
+        
           
           assignmentArray($1, $3, $6);
-        } /* Perform array assignment */
+         /* Perform array assignment */
         //stack = pop(stack);
       }
       ;
@@ -188,22 +213,17 @@ boolExpression:
       additiveExpression relop additiveExpression
       {
         
-        if (currentIf == 1 && peek(stack) == 0)
+        printf("BOOL %f %s %f\n", $1, $2, $3);
+        $$ = getBoolExp($2, $1, $3); 
+
+        if (!isEmpty(nested))
         {
-          printf("BOOL 1 %f %s %f\n", $1, $2, $3);
-          $$ = getBoolExp($2, $1, $3); 
-          stack = push(stack, 0);
-          stack = push(stack, 0);
-          currentIf = 0;
+          push(nested, $$);
+          printf("UÌSLAST %d\n", ifLast);
+          execute = ifLast ? getStart(nested) : !getStart(nested);
         }
-        else 
-        {
-          printf("BOOL 2 %f %s %f\n", $1, $2, $3);
-          $$ = getBoolExp($2, $1, $3); 
-          stack = push(stack, $$ == 0);
-          stack = push(stack, $$);
-        }
-        /* Get the boolean value for the relop expression */
+
+        printf("EXSTMT %d\n\n", execute);
       }
       ;
 
@@ -408,7 +428,7 @@ void writeInput(char id[]) {
 
 int main(void) {
     printf("\n");
-    stack = initStack(stack);
+    //stack = initStack(stack);
     yyparse();
     printf("no syntax errors found while parsing\n");
     printSymbolTable(s);
